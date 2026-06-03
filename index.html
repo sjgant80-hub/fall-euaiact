@@ -602,6 +602,11 @@ function classify(){
     for (const a of arts) html += `<li>Article <code>${a}</code></li>`;
     html += `</ul>`;
   }
+  // estate bridges · broadcast to sibling tools
+  const lastVerdict = { tier: bestTier, label: bestLabel, triggers: tierHits.map(h => ({ note: h.note, article: h.art })), articles: [...new Set(tierHits.map(h => h.art))], confidence: tierHits.length === 0 ? 0 : Math.min(95, 40 + tierHits.length * 20) };
+  html += `<h4>Send to estate sibling</h4>`;
+  html += `<div class="row" style="margin-top:6px"><button class="ghost small" onclick='bridgeToFallBrief(${JSON.stringify(lastVerdict).replace(/'/g, "&apos;")}, ${JSON.stringify(text).replace(/'/g, "&apos;")})'>◊ Open in FallBrief (BRUSSELS agent)</button>`;
+  html += `<button class="ghost small" onclick='bridgeToLegalmon(${JSON.stringify(lastVerdict).replace(/'/g, "&apos;")}, "Your AI System")'>◐ Battle in Legalmon</button></div>`;
   if (bestTier === 'prohibited'){
     html += `<h4>Action</h4><p>Do not deploy in the EU. Re-scope the use case OR remove the prohibited element. If you need to argue an exception, get written legal opinion first.</p>`;
   } else if (bestTier === 'high'){
@@ -768,6 +773,52 @@ async function exportLog(){
 }
 
 function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+// ─── ESTATE BRIDGES · broadcast classifications to sibling tools ───
+function bridgeToFallBrief(verdict, sysDesc){
+  try {
+    if (!bc) return alert('fall-signal mesh not available');
+    bc.postMessage({
+      type: 'fall_signal', source: 'fall-euaiact', target: 'fallbrief',
+      kind: 'euaia_classification',
+      payload: {
+        agent: 'BRUSSELS', domain: 'EU AI Act · Regulation 2024/1689',
+        query_type: 'compliance_classification',
+        tier: verdict.tier, system_description: sysDesc,
+        confidence: verdict.confidence, articles_to_research: verdict.articles,
+        triggers: verdict.triggers, reasoning: verdict.label,
+      },
+      ts: new Date().toISOString(),
+    });
+    alert('◊ broadcast to FallBrief · open FallBrief in another tab on this device to see the BRUSSELS agent route the classification');
+  } catch(e){ alert('bridge failed: ' + e.message); }
+}
+
+function bridgeToLegalmon(verdict, sysName){
+  try {
+    if (!bc) return alert('fall-signal mesh not available');
+    const tierMeta = {
+      prohibited: { hp: 30, arena: 'Brussels Tribunal · Article 5 Forbidden Zone', opp_hp: 200, opp_name: 'EU AI Office · Enforcement Squad' },
+      high:       { hp: 100, arena: 'Annex III Battle Stadium', opp_hp: 150, opp_name: 'EU AI Office · High-Risk Reviewer' },
+      limited:    { hp: 120, arena: 'Article 50 Disclosure Beach', opp_hp: 60, opp_name: 'Light Touch Inspector' },
+      minimal:    { hp: 200, arena: 'Minimal Risk Park', opp_hp: 30, opp_name: 'Voluntary Code Volunteer' },
+    }[verdict.tier] || {};
+    bc.postMessage({
+      type: 'fall_signal', source: 'fall-euaiact', target: 'legalmon',
+      kind: 'euaia_battle_request',
+      payload: {
+        battle_id: `euaia-${verdict.tier}-${Date.now()}`,
+        title: `${sysName} vs EU AI Office`,
+        arena: tierMeta.arena,
+        your_pokemon: { name: sysName, hp: tierMeta.hp, moves: (verdict.articles || []).map(a => ({ name: `Article ${a}`, type: 'Compliance' })) },
+        opponent_pokemon: { name: tierMeta.opp_name, hp: tierMeta.opp_hp },
+        metadata: { source: 'fall-euaiact', tier: verdict.tier, confidence: verdict.confidence },
+      },
+      ts: new Date().toISOString(),
+    });
+    alert('◐ broadcast to Legalmon · open Legalmon (teslasolar/Legalmon) to render the battle');
+  } catch(e){ alert('bridge failed: ' + e.message); }
+}
 
 // ─── i18n (UI strings only · article text stays in English with EUR-Lex links) ───
 const I18N = {
