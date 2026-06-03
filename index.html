@@ -550,9 +550,9 @@ const RULES = [
     ] },
   { tier:'high', label:'HIGH RISK · Annex III · Articles 6-15',
     triggers:[
-      { re:/\b(cv|c\.v\.|resume|résumé) (screening|scoring|ranking|filter)|hire.*decision|hir.*algorithm|recruit.*automat|applicant.*scor/i, art:'Annex III(4)', note:'employment · CV screening · hiring' },
+      { re:/\b(cv|c\.v\.|resume|résumé)s?\b.{0,30}(screen|scor|rank|filter|reject)|screen.{0,30}\b(cv|c\.v\.|resume|résumé)s?\b|hire.*decision|hir.*algorithm|recruit.*(automat|agency|agent)|applicant.*scor/i, art:'Annex III(4)', note:'employment · CV screening · hiring' },
       { re:/performance evaluat|worker.*manag|task allocat.*algorithm|monitor.*employee/i, art:'Annex III(4)', note:'workplace performance evaluation' },
-      { re:/credit (scoring|decision|approval)|loan.*decision|underwrit/i, art:'Annex III(5)', note:'access to essential financial services' },
+      { re:/credit.{0,20}(scoring|decision|approval|application|review|risk)|scor.{0,20}credit|loan.*decision|underwrit/i, art:'Annex III(5)', note:'access to essential financial services' },
       { re:/insurance.*pric|health.*insurance.*risk/i, art:'Annex III(5)', note:'insurance underwriting · health/life' },
       { re:/emergency.*dispatch|triage.*emerg/i, art:'Annex III(5)', note:'emergency service dispatch' },
       { re:/public benefit.*eligib|welfare.*decis|social.*assistance.*decis/i, art:'Annex III(5)', note:'eligibility for public benefits' },

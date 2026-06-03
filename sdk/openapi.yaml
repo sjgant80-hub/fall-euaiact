@@ -1,0 +1,203 @@
+openapi: 3.1.0
+info:
+  title: fall-euaiact REST API
+  description: |
+    EU AI Act (Regulation 2024/1689) compliance API.
+    Risk classifier · article navigator · BYOK LLM deep classify · Annex IV doc generator.
+    Reference implementation: a single Cloudflare Worker (worker.js). Deploy yourself · sovereign hosting.
+  version: 1.0.0
+  license:
+    name: MIT
+    identifier: MIT
+  contact:
+    url: https://github.com/sjgant80-hub/fall-euaiact
+servers:
+  - url: https://your-deployment.workers.dev
+    description: Your self-hosted instance (Cloudflare Worker / Vercel / Render / etc.)
+paths:
+  /v1/classify:
+    post:
+      summary: T0 keyword classifier · returns risk tier + article cites
+      operationId: classify
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [description]
+              properties:
+                description:
+                  type: string
+                  example: An AI system that screens CVs for a recruitment agency.
+      responses:
+        '200':
+          description: Classification result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassifyResult'
+  /v1/deep-classify:
+    post:
+      summary: T2 LLM-powered deep classifier · BYOK pass-through to provider
+      operationId: deepClassify
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [description, provider, apiKey]
+              properties:
+                description:
+                  type: string
+                provider:
+                  type: string
+                  enum: [anthropic, openai, google]
+                apiKey:
+                  type: string
+                  description: Your own provider API key · passed through to provider · never stored
+                model:
+                  type: string
+                  description: Optional model override
+      responses:
+        '200':
+          description: Deep classification result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeepClassifyResult'
+  /v1/articles:
+    get:
+      summary: Search articles by keyword
+      operationId: searchArticles
+      parameters:
+        - name: q
+          in: query
+          schema: { type: string }
+          example: hiring
+      responses:
+        '200':
+          description: Matching articles
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Article' }
+  /v1/article/{id}:
+    get:
+      summary: Get a specific article
+      operationId: getArticle
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+          example: "14"
+      responses:
+        '200':
+          description: Article
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Article' }
+        '404':
+          description: Not found
+  /v1/docgen:
+    post:
+      summary: Generate Annex IV Markdown documentation from field values
+      operationId: generateDoc
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [values]
+              properties:
+                values:
+                  type: object
+                  additionalProperties: { type: string }
+                date:
+                  type: string
+                  format: date
+                draftWarning:
+                  type: boolean
+      responses:
+        '200':
+          description: Generated Markdown
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  markdown: { type: string }
+  /v1/spec:
+    get:
+      summary: SDK + spec metadata
+      operationId: getSpec
+      responses:
+        '200':
+          description: Spec info
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sdk_version: { type: string }
+                  spec: { type: string }
+                  articles_count: { type: integer }
+                  deadlines:
+                    type: array
+                    items: { type: object }
+                  penalties:
+                    type: array
+                    items: { type: object }
+components:
+  schemas:
+    ClassifyResult:
+      type: object
+      properties:
+        tier:
+          type: string
+          enum: [prohibited, high, limited, minimal]
+        label: { type: string }
+        triggers:
+          type: array
+          items:
+            type: object
+            properties:
+              note: { type: string }
+              article: { type: string }
+        articles:
+          type: array
+          items: { type: string }
+        confidence:
+          type: integer
+          minimum: 0
+          maximum: 100
+    DeepClassifyResult:
+      type: object
+      properties:
+        tier: { type: string, enum: [prohibited, high, limited, minimal] }
+        confidence: { type: integer, minimum: 0, maximum: 100 }
+        articles:
+          type: array
+          items: { type: string }
+        reasoning: { type: string }
+        key_risks:
+          type: array
+          items: { type: string }
+        next_steps:
+          type: array
+          items: { type: string }
+    Article:
+      type: object
+      properties:
+        id: { type: string }
+        title: { type: string }
+        enforceFrom: { type: string, format: date }
+        tags:
+          type: array
+          items: { type: string }
+        summary: { type: string }
+        penalty: { type: string }

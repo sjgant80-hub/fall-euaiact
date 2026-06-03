@@ -1,0 +1,58 @@
+{
+  "name": "fall-euaiact",
+  "version": "1.0.0",
+  "description": "EU AI Act (Regulation 2024/1689) compliance SDK · risk classifier · article navigator · audit shim · Annex IV doc generator · zero deps · MIT",
+  "type": "module",
+  "main": "./index.js",
+  "module": "./index.js",
+  "types": "./index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "import": "./index.js"
+    },
+    "./classifier": "./classifier.js",
+    "./articles": "./articles.js",
+    "./audit": "./audit.js",
+    "./docgen": "./docgen.js"
+  },
+  "files": [
+    "index.js",
+    "index.d.ts",
+    "classifier.js",
+    "articles.js",
+    "audit.js",
+    "docgen.js",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "eu-ai-act",
+    "ai-act",
+    "compliance",
+    "ai-regulation",
+    "annex-iv",
+    "article-12",
+    "article-14",
+    "article-50",
+    "audit-trail",
+    "risk-classification",
+    "regulation-2024-1689",
+    "ai-native-solutions",
+    "sovereign"
+  ],
+  "author": "Simon Gant",
+  "license": "MIT",
+  "homepage": "https://sjgant80-hub.github.io/fall-euaiact/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sjgant80-hub/fall-euaiact.git",
+    "directory": "sdk"
+  },
+  "bugs": {
+    "url": "https://github.com/sjgant80-hub/fall-euaiact/issues"
+  }
+}
