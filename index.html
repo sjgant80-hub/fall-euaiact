@@ -122,21 +122,44 @@ footer{margin-top:36px;padding:20px 0;text-align:center;color:var(--brass);font-
     <span class="tag">EU AI Act sovereign toolkit · prime 607 · ◊·κ=1</span>
   </div>
   <p class="sub">Paste your AI system description → get risk tier with article cites. Navigate the Act by use case. Drop in audit-trail JS for Article 12. Generate transparency badges. Built sovereign · runs offline · your data never leaves the browser.</p>
-  <span class="priv">RESEARCH ONLY · NOT LEGAL ADVICE · verify with counsel</span>
+  <span class="priv" data-i18n="disclaimer">RESEARCH ONLY · NOT LEGAL ADVICE · verify with counsel</span>
+  <div style="margin-top:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+    <label style="color:var(--brass);font-family:'IBM Plex Mono',monospace;font-size:0.78rem;letter-spacing:0.08em;text-transform:uppercase">Language</label>
+    <select id="langSel" style="width:auto;min-width:110px;padding:5px 10px;font-size:0.85rem" onchange="setLang(this.value)">
+      <option value="en">English</option>
+      <option value="de">Deutsch</option>
+      <option value="fr">Français</option>
+      <option value="es">Español</option>
+      <option value="nl">Nederlands</option>
+      <option value="pl">Polski</option>
+    </select>
+    <span style="color:var(--cream);opacity:0.55;font-size:0.78rem;font-family:'IBM Plex Mono',monospace">UI only · article text stays in English with EUR-Lex links to all 24 official languages</span>
+  </div>
 </header>
 
 <div class="disclaimer">
   <strong>Honest framing:</strong> this is a heuristic toolkit grounded in the AI Act text (Regulation 2024/1689). The risk classifier is a starting point, not a definitive judgment. For systems that materially affect anyone, get a qualified legal opinion. The Act's full text is at <a href="https://eur-lex.europa.eu/eli/reg/2024/1689/oj" target="_blank">eur-lex.europa.eu/eli/reg/2024/1689/oj</a>.
 </div>
 
+<!-- ─── BYOK SETTINGS ─── -->
+<section>
+  <h2><span class="num">⚙</span> <span data-i18n="byok_h">Settings · BYOK deep classifier</span></h2>
+  <p class="intro" data-i18n="byok_intro">T0 keyword classifier always runs (offline · no key). T2 adds LLM-powered deeper analysis using your own API key. Key stays in localStorage on your device · never sent anywhere except the provider you choose.</p>
+  <div class="row"><label style="color:var(--brass);font-family:'IBM Plex Mono',monospace;font-size:0.82rem;min-width:80px"><span data-i18n="provider">Provider</span></label><select id="provider" style="flex:1"><option value="">T0 only (offline · no LLM)</option><option value="anthropic">Anthropic (Claude)</option><option value="openai">OpenAI (GPT)</option><option value="google">Google (Gemini)</option></select></div>
+  <div class="row"><label style="color:var(--brass);font-family:'IBM Plex Mono',monospace;font-size:0.82rem;min-width:80px"><span data-i18n="apikey">API key</span></label><input id="apiKey" type="password" placeholder="sk-..." autocomplete="off" style="flex:1"></div>
+  <div class="row"><button onclick="saveKey()" data-i18n="save">Save settings</button><button class="ghost" onclick="clearKey()" data-i18n="clear_key">Clear key</button></div>
+  <p id="keyStatus" style="color:var(--brass);font-size:0.85rem;margin-top:6px;font-family:'IBM Plex Mono',monospace"></p>
+</section>
+
 <!-- ─── RISK CLASSIFIER ─── -->
 <section>
-  <h2><span class="num">R0 ●</span> Risk classifier</h2>
-  <p class="intro">Paste a plain-English description of what your AI system does. The classifier matches against the Act's risk tiers and returns the most-likely category with the article cites you need to read.</p>
-  <textarea id="sysDesc" placeholder="Example: An AI system that screens CVs for a recruitment agency. Takes uploaded CVs, scores each candidate 0-100 against the job description, ranks them, and rejects the bottom 50% automatically without human review."></textarea>
+  <h2><span class="num">R0 ●</span> <span data-i18n="classifier_h">Risk classifier</span></h2>
+  <p class="intro" data-i18n="classifier_intro">Paste a plain-English description of what your AI system does. The classifier matches against the Act's risk tiers and returns the most-likely category with the article cites you need to read.</p>
+  <textarea id="sysDesc" data-i18n-ph="classifier_ph" placeholder="Example: An AI system that screens CVs for a recruitment agency. Takes uploaded CVs, scores each candidate 0-100 against the job description, ranks them, and rejects the bottom 50% automatically without human review."></textarea>
   <div class="row">
-    <button onclick="classify()">Classify</button>
-    <button class="ghost" onclick="clearClassify()">Clear</button>
+    <button onclick="classify()" data-i18n="classify_btn">Classify</button>
+    <button onclick="deepClassify()" id="deepBtn" data-i18n="deep_btn" title="Requires BYOK key in Settings">Deep classify (LLM)</button>
+    <button class="ghost" onclick="clearClassify()" data-i18n="clear_btn">Clear</button>
   </div>
   <div class="samples">
     <button onclick="loadSample(0)">CV screening (high-risk)</button>
@@ -146,6 +169,7 @@ footer{margin-top:36px;padding:20px 0;text-align:center;color:var(--brass);font-
     <button onclick="loadSample(4)">Spam filter (minimal)</button>
   </div>
   <div id="verdict" class="verdict"></div>
+  <div id="deepVerdict" class="verdict" style="margin-top:14px;border-left-color:var(--gold)"></div>
 </section>
 
 <!-- ─── ARTICLE NAVIGATOR ─── -->
@@ -464,6 +488,16 @@ console.log(JSON.stringify(allLogs, null, 2));</div>
   <div class="checkprogress" id="checkProgress">0 / 14 documented</div>
 </section>
 
+<!-- ─── ANNEX IV DOC GENERATOR ─── -->
+<section>
+  <h2><span class="num">R2 ┃</span> <span data-i18n="docgen_h">Annex IV documentation generator</span></h2>
+  <p class="intro" data-i18n="docgen_intro">Fill in each field. Output is a downloadable Markdown document structured per Annex IV. Use as the starting draft for your technical documentation file. Inputs persist locally so you can come back. Nothing is sent anywhere.</p>
+  <div id="docForm" style="display:flex;flex-direction:column;gap:12px;margin-bottom:14px"></div>
+  <div class="row"><button onclick="generateDoc()" data-i18n="docgen_btn">Generate Markdown</button><button class="ghost" onclick="clearDocForm()" data-i18n="docgen_clear">Clear form</button></div>
+  <div id="docOut" class="snippet" style="display:none;max-height:500px;overflow:auto"><button class="copy" onclick="copySnippet(this)">copy</button><span id="docOutBody"></span></div>
+  <div class="row" id="docDownload" style="display:none;margin-top:10px"><button onclick="downloadDoc()" data-i18n="docgen_download">Download .md</button></div>
+</section>
+
 <!-- ─── SESSION LOG ─── -->
 <section>
   <h2><span class="num">R4 △</span> Classification log</h2>
@@ -735,9 +769,226 @@ async function exportLog(){
 
 function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
+// ─── i18n (UI strings only · article text stays in English with EUR-Lex links) ───
+const I18N = {
+  en: { byok_h:'Settings · BYOK deep classifier', byok_intro:'T0 keyword classifier always runs (offline · no key). T2 adds LLM-powered deeper analysis using your own API key. Key stays in localStorage on your device · never sent anywhere except the provider you choose.', provider:'Provider', apikey:'API key', save:'Save settings', clear_key:'Clear key', classifier_h:'Risk classifier', classifier_intro:'Paste a plain-English description of what your AI system does. The classifier matches against the Act\'s risk tiers and returns the most-likely category with the article cites you need to read.', classifier_ph:'Example: An AI system that screens CVs for a recruitment agency. Takes uploaded CVs, scores each candidate 0-100 against the job description, ranks them, and rejects the bottom 50% automatically without human review.', classify_btn:'Classify', deep_btn:'Deep classify (LLM)', clear_btn:'Clear', disclaimer:'RESEARCH ONLY · NOT LEGAL ADVICE · verify with counsel', docgen_h:'Annex IV documentation generator', docgen_intro:'Fill in each field. Output is a downloadable Markdown document structured per Annex IV. Use as the starting draft for your technical documentation file.', docgen_btn:'Generate Markdown', docgen_clear:'Clear form', docgen_download:'Download .md' },
+  de: { byok_h:'Einstellungen · BYOK tiefer Klassifikator', byok_intro:'Der T0-Schlüsselwort-Klassifikator läuft immer (offline · kein Schlüssel). T2 fügt LLM-gestützte tiefere Analyse mit Ihrem eigenen API-Schlüssel hinzu. Der Schlüssel bleibt im localStorage Ihres Geräts · wird nirgendwohin gesendet außer zum gewählten Anbieter.', provider:'Anbieter', apikey:'API-Schlüssel', save:'Einstellungen speichern', clear_key:'Schlüssel löschen', classifier_h:'Risikoklassifikator', classifier_intro:'Fügen Sie eine Beschreibung Ihres KI-Systems in einfacher Sprache ein. Der Klassifikator gleicht mit den Risikostufen ab und gibt die wahrscheinlichste Kategorie mit den relevanten Artikeln zurück.', classifier_ph:'Beispiel: Ein KI-System, das Lebensläufe für eine Personalvermittlung prüft...', classify_btn:'Klassifizieren', deep_btn:'Tiefe Klassifikation (LLM)', clear_btn:'Leeren', disclaimer:'NUR ZUR RECHERCHE · KEINE RECHTSBERATUNG · mit Anwalt prüfen', docgen_h:'Anhang-IV-Dokumentationsgenerator', docgen_intro:'Füllen Sie jedes Feld aus. Die Ausgabe ist ein herunterladbares Markdown-Dokument gemäß Anhang IV.', docgen_btn:'Markdown generieren', docgen_clear:'Formular leeren', docgen_download:'.md herunterladen' },
+  fr: { byok_h:'Paramètres · classificateur approfondi BYOK', byok_intro:'Le classificateur de mots-clés T0 fonctionne toujours (hors ligne · sans clé). T2 ajoute une analyse approfondie par LLM avec votre propre clé API. La clé reste dans le localStorage de votre appareil · n\'est jamais envoyée ailleurs que chez le fournisseur choisi.', provider:'Fournisseur', apikey:'Clé API', save:'Enregistrer', clear_key:'Effacer la clé', classifier_h:'Classificateur de risque', classifier_intro:'Collez une description en langage simple de ce que fait votre système d\'IA. Le classificateur correspond aux niveaux de risque de la Loi et renvoie la catégorie la plus probable avec les articles à lire.', classifier_ph:'Exemple : Un système d\'IA qui examine les CV pour une agence de recrutement...', classify_btn:'Classifier', deep_btn:'Classification approfondie (LLM)', clear_btn:'Effacer', disclaimer:'RECHERCHE UNIQUEMENT · PAS UN CONSEIL JURIDIQUE · vérifier avec un avocat', docgen_h:'Générateur de documentation Annexe IV', docgen_intro:'Remplissez chaque champ. La sortie est un document Markdown téléchargeable structuré selon l\'Annexe IV.', docgen_btn:'Générer Markdown', docgen_clear:'Effacer', docgen_download:'Télécharger .md' },
+  es: { byok_h:'Configuración · clasificador profundo BYOK', byok_intro:'El clasificador de palabras clave T0 siempre se ejecuta (sin conexión · sin clave). T2 añade análisis profundo con LLM usando tu propia clave API. La clave permanece en el localStorage de tu dispositivo · nunca se envía a ningún sitio excepto al proveedor que elijas.', provider:'Proveedor', apikey:'Clave API', save:'Guardar', clear_key:'Borrar clave', classifier_h:'Clasificador de riesgo', classifier_intro:'Pega una descripción en lenguaje sencillo de lo que hace tu sistema de IA. El clasificador compara con los niveles de riesgo de la Ley y devuelve la categoría más probable con los artículos a leer.', classifier_ph:'Ejemplo: Un sistema de IA que filtra CVs para una agencia de reclutamiento...', classify_btn:'Clasificar', deep_btn:'Clasificación profunda (LLM)', clear_btn:'Limpiar', disclaimer:'SOLO INVESTIGACIÓN · NO ASESORAMIENTO LEGAL · verificar con abogado', docgen_h:'Generador de documentación Anexo IV', docgen_intro:'Rellena cada campo. La salida es un documento Markdown descargable estructurado según el Anexo IV.', docgen_btn:'Generar Markdown', docgen_clear:'Limpiar formulario', docgen_download:'Descargar .md' },
+  nl: { byok_h:'Instellingen · BYOK diepe classificeerder', byok_intro:'De T0-trefwoordclassificeerder draait altijd (offline · geen sleutel). T2 voegt LLM-aangedreven diepere analyse toe met je eigen API-sleutel. De sleutel blijft in de localStorage van je apparaat · wordt nergens anders heen verzonden dan naar de gekozen provider.', provider:'Provider', apikey:'API-sleutel', save:'Opslaan', clear_key:'Sleutel wissen', classifier_h:'Risicoclassificeerder', classifier_intro:'Plak een eenvoudige beschrijving van wat je AI-systeem doet. De classificeerder vergelijkt met de risiconiveaus van de Wet en geeft de meest waarschijnlijke categorie terug.', classifier_ph:'Voorbeeld: Een AI-systeem dat CV\'s screent voor een uitzendbureau...', classify_btn:'Classificeren', deep_btn:'Diepe classificatie (LLM)', clear_btn:'Wissen', disclaimer:'ALLEEN ONDERZOEK · GEEN JURIDISCH ADVIES · verifieer met advocaat', docgen_h:'Bijlage IV documentatiegenerator', docgen_intro:'Vul elk veld in. De output is een downloadbaar Markdown-document gestructureerd volgens Bijlage IV.', docgen_btn:'Markdown genereren', docgen_clear:'Formulier wissen', docgen_download:'.md downloaden' },
+  pl: { byok_h:'Ustawienia · głęboki klasyfikator BYOK', byok_intro:'Klasyfikator słów kluczowych T0 zawsze działa (offline · bez klucza). T2 dodaje głębszą analizę LLM z użyciem własnego klucza API. Klucz pozostaje w localStorage Twojego urządzenia · nigdy nie jest wysyłany nigdzie poza wybranym dostawcą.', provider:'Dostawca', apikey:'Klucz API', save:'Zapisz', clear_key:'Wyczyść klucz', classifier_h:'Klasyfikator ryzyka', classifier_intro:'Wklej opis swojego systemu AI prostym językiem. Klasyfikator dopasowuje do poziomów ryzyka Aktu i zwraca najbardziej prawdopodobną kategorię.', classifier_ph:'Przykład: System AI przesiewający CV dla agencji rekrutacyjnej...', classify_btn:'Klasyfikuj', deep_btn:'Głęboka klasyfikacja (LLM)', clear_btn:'Wyczyść', disclaimer:'TYLKO BADANIA · NIE PORADA PRAWNA · zweryfikuj z prawnikiem', docgen_h:'Generator dokumentacji Załącznika IV', docgen_intro:'Wypełnij każde pole. Wynik to pobierany dokument Markdown według Załącznika IV.', docgen_btn:'Generuj Markdown', docgen_clear:'Wyczyść formularz', docgen_download:'Pobierz .md' },
+};
+
+function setLang(lang){
+  const t = I18N[lang] || I18N.en;
+  document.querySelectorAll('[data-i18n]').forEach(el => { const k = el.getAttribute('data-i18n'); if (t[k]) el.textContent = t[k]; });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => { const k = el.getAttribute('data-i18n-ph'); if (t[k]) el.setAttribute('placeholder', t[k]); });
+  document.documentElement.lang = lang;
+  try { localStorage.setItem('euaiact_lang', lang); } catch(_){}
+}
+
+// ─── BYOK keys ───
+function saveKey(){
+  const p = document.getElementById('provider').value;
+  const k = document.getElementById('apiKey').value;
+  try {
+    localStorage.setItem('euaiact_provider', p);
+    if (k) localStorage.setItem('euaiact_apikey_' + p, k);
+    document.getElementById('keyStatus').textContent = p ? `✓ saved · provider=${p}` : '✓ T0 only · offline mode';
+  } catch(e) { document.getElementById('keyStatus').textContent = '✗ localStorage unavailable'; }
+}
+function clearKey(){
+  try {
+    const p = localStorage.getItem('euaiact_provider');
+    if (p) localStorage.removeItem('euaiact_apikey_' + p);
+    localStorage.removeItem('euaiact_provider');
+    document.getElementById('apiKey').value = '';
+    document.getElementById('provider').value = '';
+    document.getElementById('keyStatus').textContent = '✓ cleared';
+  } catch(_){}
+}
+
+// ─── T2 DEEP CLASSIFY (BYOK) ───
+const DEEP_PROMPT = `You are an EU AI Act (Regulation 2024/1689) compliance analyst. Given a description of an AI system, return a JSON object with this exact shape:
+
+{
+  "tier": "prohibited" | "high" | "limited" | "minimal",
+  "confidence": 0-100,
+  "articles": ["5(1)(c)", "Annex III(4)", ...],
+  "reasoning": "2-4 sentences explaining the classification",
+  "key_risks": ["risk 1", "risk 2", ...],
+  "next_steps": ["concrete action 1", "concrete action 2", ...]
+}
+
+The tiers:
+- prohibited: matches Article 5 (social scoring, predictive policing, untargeted facial scraping, workplace emotion recognition, biometric categorisation by sensitive attributes, real-time biometric ID in public for LE, subliminal manipulation, exploitation of vulnerabilities)
+- high: matches Annex III (biometrics, critical infrastructure, education, employment, essential services like credit, law enforcement, migration, justice/democracy)
+- limited: matches Article 50 (chatbots, deepfakes, emotion recognition outside workplace, biometric categorisation, AI-generated public-interest text)
+- minimal: everything else
+
+Be honest about confidence. If the description is ambiguous, say so in reasoning. Return ONLY the JSON object, no markdown, no preamble.`;
+
+async function deepClassify(){
+  const text = document.getElementById('sysDesc').value.trim();
+  if (!text){ alert('paste a system description first'); return; }
+  const provider = localStorage.getItem('euaiact_provider');
+  const key = provider && localStorage.getItem('euaiact_apikey_' + provider);
+  if (!provider || !key){ alert('configure BYOK provider + API key in Settings first'); return; }
+  const out = document.getElementById('deepVerdict');
+  out.className = 'verdict show';
+  out.style.borderLeftColor = 'var(--gold)';
+  out.innerHTML = '<h3 style="color:var(--gold)">Deep classifying...</h3><div class="conf">querying ' + provider + '...</div>';
+  try {
+    let result;
+    if (provider === 'anthropic'){
+      const r = await fetch('https://api.anthropic.com/v1/messages', {
+        method:'POST', headers:{'content-type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+        body: JSON.stringify({ model:'claude-3-5-sonnet-20241022', max_tokens:800, messages:[{role:'user', content: DEEP_PROMPT + '\n\nSystem description:\n' + text}] })
+      });
+      const data = await r.json();
+      if (data.error) throw new Error(data.error.message || 'API error');
+      result = JSON.parse((data.content?.[0]?.text || '{}').replace(/^```json\s*|\s*```$/g, ''));
+    } else if (provider === 'openai'){
+      const r = await fetch('https://api.openai.com/v1/chat/completions', {
+        method:'POST', headers:{'content-type':'application/json','authorization':'Bearer '+key},
+        body: JSON.stringify({ model:'gpt-4o-mini', messages:[{role:'system', content: DEEP_PROMPT},{role:'user', content: text}], response_format:{type:'json_object'} })
+      });
+      const data = await r.json();
+      if (data.error) throw new Error(data.error.message || 'API error');
+      result = JSON.parse(data.choices?.[0]?.message?.content || '{}');
+    } else if (provider === 'google'){
+      const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`, {
+        method:'POST', headers:{'content-type':'application/json'},
+        body: JSON.stringify({ contents:[{parts:[{text: DEEP_PROMPT + '\n\nSystem description:\n' + text}]}], generationConfig:{responseMimeType:'application/json'} })
+      });
+      const data = await r.json();
+      if (data.error) throw new Error(data.error.message || 'API error');
+      result = JSON.parse(data.candidates?.[0]?.content?.parts?.[0]?.text || '{}');
+    }
+    const tier = result.tier || 'minimal';
+    out.className = 'verdict show ' + tier;
+    let html = `<h3>LLM verdict · ${(tier+'').toUpperCase()} RISK</h3>`;
+    html += `<div class="conf">${provider} · confidence ${result.confidence || '?'}% · LLM analysis (BYOK)</div>`;
+    html += `<div class="why">${escapeHtml(result.reasoning || '')}</div>`;
+    if (result.articles?.length){ html += `<h4>Articles cited</h4><ul>${result.articles.map(a=>`<li><code>${escapeHtml(a)}</code></li>`).join('')}</ul>`; }
+    if (result.key_risks?.length){ html += `<h4>Key risks</h4><ul>${result.key_risks.map(r=>`<li>${escapeHtml(r)}</li>`).join('')}</ul>`; }
+    if (result.next_steps?.length){ html += `<h4>Next steps</h4><ul>${result.next_steps.map(s=>`<li>${escapeHtml(s)}</li>`).join('')}</ul>`; }
+    out.innerHTML = html;
+    emit('fall_euaiact_deep_classified', { tier, confidence: result.confidence, provider });
+  } catch(e){
+    out.innerHTML = `<h3 style="color:var(--red)">Deep classify failed</h3><div class="conf">${escapeHtml(e.message)}</div><p style="color:var(--cream);font-size:0.88rem;margin-top:8px">Check your API key and provider in Settings. T0 verdict above is still valid.</p>`;
+  }
+}
+
+// ─── ANNEX IV DOC GENERATOR ───
+const DOC_FIELDS = [
+  { id:'system_name', q:'System name & version', placeholder:'e.g. FallVet CV Scorer v2.3', art:'Annex IV(1)(a)' },
+  { id:'provider', q:'Provider name + address + contact', placeholder:'Your company name · registered address · contact email', art:'Annex IV(1)(a)' },
+  { id:'purpose', q:'Intended purpose (specific use case)', placeholder:'Scoring software-engineer CVs against role specifications for a SaaS company recruitment agency in Germany', art:'Annex IV(1)(b)' },
+  { id:'users', q:'Intended users + deployment context', placeholder:'In-house recruiters at Acme GmbH · screen 200-500 applications per month · German labour market', art:'Annex IV(1)(c)' },
+  { id:'architecture', q:'System architecture · models · components', placeholder:'TF-IDF + logistic regression baseline · BERT embedding similarity for skills match · scoring rubric weighted blend · all runs in browser', art:'Annex IV(2)(a)' },
+  { id:'training_data', q:'Training data origin · curation · annotation', placeholder:'5000 anonymised CVs + role pairings · sourced from public CV-sharing datasets + synthetic augmentation · annotated by 3 senior recruiters with calibration', art:'Annex IV(2)(d)' },
+  { id:'data_governance', q:'Data governance · bias examination', placeholder:'Gender/age/ethnicity-blind labelling protocol · group-fairness metrics (TPR · FPR) measured per protected attribute · quarterly audit', art:'Article 10' },
+  { id:'risk_mgmt', q:'Risk management system (identified risks + mitigations)', placeholder:'Risk: bias against career gaps → mitigation: explicit feature exclusion + recruiter review threshold · Risk: data drift → mitigation: monthly retraining on fresh labels', art:'Article 9' },
+  { id:'accuracy', q:'Accuracy metrics + test datasets + results', placeholder:'F1 = 0.83 on held-out test (n=500) · ROC-AUC = 0.91 · calibrated against recruiter judgment · per-group F1 in appendix', art:'Article 15' },
+  { id:'human_oversight', q:'Human oversight measures (Article 14)', placeholder:'Threshold gate: scores < 60 reviewed by senior recruiter before rejection · clear-stop UI button visible at all times · audit log of every override', art:'Article 14' },
+  { id:'cybersecurity', q:'Cybersecurity measures', placeholder:'Input sanitisation against prompt injection · adversarial test against typo / obfuscated CVs · runs client-side so no API attack surface · CSP headers enforced', art:'Article 15' },
+  { id:'logging', q:'Logging design (Article 12)', placeholder:'Every inference logged: timestamp · input hash · output score · operator ID · prevHash chain (SHA-256). Retained for 12 months in IndexedDB + monthly cold export.', art:'Article 12' },
+  { id:'instructions', q:'Instructions for deployers', placeholder:'User guide v1.0 · explains limitations (no protected-attribute inference) · threshold tuning guidance · escalation paths · provided as part of onboarding kit', art:'Article 13' },
+  { id:'post_market', q:'Post-market monitoring + serious incident reporting', placeholder:'Weekly performance dashboard reviewed by ML team · 24h triage SLA for any group-fairness regression · serious incident process documented · authority contact list maintained', art:'Articles 72-73' },
+];
+
+function renderDocForm(){
+  const html = DOC_FIELDS.map(f => `
+    <div>
+      <label style="display:block;color:var(--brass);font-family:'Libre Baskerville',serif;font-size:0.95rem;margin-bottom:4px">${f.q} <span style="color:var(--gold);font-family:'IBM Plex Mono',monospace;font-size:0.75rem;margin-left:6px">${f.art}</span></label>
+      <textarea id="doc_${f.id}" placeholder="${f.placeholder}" oninput="saveDocField('${f.id}')" style="min-height:70px"></textarea>
+    </div>`).join('');
+  document.getElementById('docForm').innerHTML = html;
+  loadDocFields();
+}
+
+function saveDocField(id){
+  try { localStorage.setItem('euaiact_doc_' + id, document.getElementById('doc_' + id).value); } catch(_){}
+}
+function loadDocFields(){
+  try {
+    DOC_FIELDS.forEach(f => {
+      const v = localStorage.getItem('euaiact_doc_' + f.id);
+      if (v) document.getElementById('doc_' + f.id).value = v;
+    });
+  } catch(_){}
+}
+function clearDocForm(){
+  if (!confirm('clear all documentation fields?')) return;
+  DOC_FIELDS.forEach(f => { document.getElementById('doc_' + f.id).value = ''; try{localStorage.removeItem('euaiact_doc_' + f.id);}catch(_){} });
+  document.getElementById('docOut').style.display = 'none';
+  document.getElementById('docDownload').style.display = 'none';
+}
+
+function generateDoc(){
+  const today = new Date().toISOString().slice(0,10);
+  const values = {};
+  DOC_FIELDS.forEach(f => values[f.id] = document.getElementById('doc_' + f.id).value.trim());
+  let md = `# Technical Documentation · EU AI Act Annex IV\n\n`;
+  md += `> Generated: ${today} · per Regulation (EU) 2024/1689 · DRAFT\n\n`;
+  md += `> This is a starting draft generated by fall-euaiact. Review with qualified counsel before use as official conformity documentation.\n\n`;
+  md += `---\n\n## 1 · General description\n\n`;
+  md += `**System name & version:** ${values.system_name || '_[fill in]_'}\n\n`;
+  md += `**Provider:** ${values.provider || '_[fill in]_'}\n\n`;
+  md += `**Intended purpose:** ${values.purpose || '_[fill in]_'}\n\n`;
+  md += `**Intended users + deployment context:** ${values.users || '_[fill in]_'}\n\n`;
+  md += `---\n\n## 2 · Description of system elements\n\n`;
+  md += `### 2.1 Architecture & components\n\n${values.architecture || '_[fill in]_'}\n\n`;
+  md += `### 2.2 Training data (Article 10)\n\n${values.training_data || '_[fill in]_'}\n\n`;
+  md += `### 2.3 Data governance & bias examination\n\n${values.data_governance || '_[fill in]_'}\n\n`;
+  md += `### 2.4 Risk management system (Article 9)\n\n${values.risk_mgmt || '_[fill in]_'}\n\n`;
+  md += `### 2.5 Accuracy, robustness & cybersecurity (Article 15)\n\n**Accuracy:** ${values.accuracy || '_[fill in]_'}\n\n`;
+  md += `**Cybersecurity:** ${values.cybersecurity || '_[fill in]_'}\n\n`;
+  md += `### 2.6 Human oversight (Article 14)\n\n${values.human_oversight || '_[fill in]_'}\n\n`;
+  md += `### 2.7 Logging (Article 12)\n\n${values.logging || '_[fill in]_'}\n\n`;
+  md += `---\n\n## 3 · Instructions for deployers (Article 13)\n\n${values.instructions || '_[fill in]_'}\n\n`;
+  md += `---\n\n## 4 · Post-market monitoring & incident reporting (Articles 72-73)\n\n${values.post_market || '_[fill in]_'}\n\n`;
+  md += `---\n\n## 5 · EU Declaration of Conformity (Article 47)\n\n_To be signed by the provider once all other sections are complete and verified by qualified counsel._\n\n`;
+  md += `- Name & address of provider: _[fill in]_\n`;
+  md += `- AI system identification: ${values.system_name || '_[fill in]_'}\n`;
+  md += `- Declaration of conformity with Regulation (EU) 2024/1689\n`;
+  md += `- Harmonised standards applied: _[list if applicable]_\n`;
+  md += `- Date · Place · Signature\n\n`;
+  md += `---\n\n_Generated by fall-euaiact (prime 607) · MIT · sjgant80-hub.github.io/fall-euaiact_\n`;
+  document.getElementById('docOutBody').textContent = md;
+  document.getElementById('docOut').style.display = 'block';
+  document.getElementById('docDownload').style.display = 'flex';
+  emit('fall_euaiact_doc_generated', { fields_filled: Object.values(values).filter(Boolean).length, total: DOC_FIELDS.length });
+}
+
+function downloadDoc(){
+  const md = document.getElementById('docOutBody').textContent;
+  const blob = new Blob([md], { type:'text/markdown;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  const name = (document.getElementById('doc_system_name').value || 'ai-system').toLowerCase().replace(/[^a-z0-9-]/g, '-');
+  a.download = `${name}-annex-iv-${new Date().toISOString().slice(0,10)}.md`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 // init
 renderChecklist();
+renderDocForm();
 openDb().then(renderLog).catch(()=>{});
+// load saved BYOK + language
+try {
+  const p = localStorage.getItem('euaiact_provider') || '';
+  document.getElementById('provider').value = p;
+  if (p && localStorage.getItem('euaiact_apikey_' + p)){
+    document.getElementById('keyStatus').textContent = `key on file · provider=${p}`;
+  }
+  const lang = localStorage.getItem('euaiact_lang') || 'en';
+  document.getElementById('langSel').value = lang;
+  if (lang !== 'en') setLang(lang);
+} catch(_){}
 </script>
 </body>
 </html>
