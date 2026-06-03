@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="fall-euaiact · sovereign EU AI Act compliance toolkit · risk classifier · article navigator · audit hookup · transparency badges · runs offline">
+<title>fall-euaiact · ◊·κ=1</title>
+<link rel="manifest" href='data:application/manifest+json;charset=utf-8,{"name":"fall-euaiact","short_name":"euAIA","start_url":".","display":"standalone","background_color":"%230b0a0f","theme_color":"%238b1a1a","icons":[{"src":"data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Crect width=%27100%27 height=%27100%27 fill=%27%238b1a1a%27/%3E%3Ctext x=%2750%27 y=%2767%27 text-anchor=%27middle%27 font-size=%2756%27 fill=%27%23d4a853%27 font-family=%27serif%27%3E◊%3C/text%3E%3C/svg%3E","sizes":"any","type":"image/svg+xml"}]}'>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville&family=DM+Sans:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--ox:#8b1a1a;--brass:#b8974a;--cream:#c4bfb2;--void:#0b0a0f;--gold:#d4a853;--ox-deep:#5a0e0e;--void-2:#161318;--void-3:#1f1a22;--ok:#4a7c4a;--amber:#b8974a;--red:#a83232;--prohibited:#7a1f1f;--high:#a83232;--limited:#b8974a;--minimal:#4a7c4a}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--void);color:var(--cream);font-family:'DM Sans',sans-serif;min-height:100vh;line-height:1.55}
+body{background-image:radial-gradient(circle at 20% 30%,rgba(139,26,26,0.08) 0%,transparent 50%),radial-gradient(circle at 80% 70%,rgba(184,151,74,0.05) 0%,transparent 50%)}
+a{color:var(--gold);text-decoration:none;border-bottom:1px dotted var(--brass)}
+a:hover{color:var(--brass)}
+h1,h2,h3{font-family:'Libre Baskerville',serif;color:var(--cream);font-weight:400;line-height:1.2}
+.mono{font-family:'IBM Plex Mono',monospace}
+.container{max-width:1100px;margin:0 auto;padding:24px 16px 60px}
+header{padding:30px 0 20px;border-bottom:1px solid var(--ox-deep);margin-bottom:24px}
+header .brand{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+header h1{font-size:2rem;color:var(--ox)}
+header .glyph{color:var(--gold);font-size:1.5rem}
+header .tag{color:var(--brass);font-size:0.85rem;letter-spacing:0.1em;text-transform:uppercase;font-family:'IBM Plex Mono',monospace}
+header .sub{margin-top:8px;color:var(--cream);opacity:0.78;font-size:0.95rem;max-width:760px}
+header .priv{display:inline-block;background:var(--ox-deep);color:var(--gold);padding:3px 10px;border-radius:2px;font-family:'IBM Plex Mono',monospace;font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;margin-top:8px}
+section{margin-bottom:24px;background:var(--void-2);border:1px solid var(--ox-deep);border-radius:4px;padding:20px}
+section h2{font-size:1.2rem;color:var(--brass);margin-bottom:14px;display:flex;align-items:baseline;gap:10px;font-weight:400}
+section h2 .num{color:var(--ox);font-family:'IBM Plex Mono',monospace;font-size:0.85rem;letter-spacing:0.05em}
+section p.intro{color:var(--cream);opacity:0.78;font-size:0.92rem;margin-bottom:14px}
+textarea,input,select{width:100%;background:var(--void);color:var(--cream);border:1px solid var(--ox-deep);border-radius:3px;padding:12px;font-family:'DM Sans',sans-serif;font-size:1rem}
+textarea{min-height:120px;resize:vertical;line-height:1.5;font-family:'IBM Plex Mono',monospace;font-size:0.9rem}
+textarea:focus,input:focus,select:focus{outline:none;border-color:var(--brass)}
+button{background:var(--ox);color:var(--cream);border:none;padding:11px 20px;font-family:'DM Sans',sans-serif;font-size:0.95rem;font-weight:500;border-radius:3px;cursor:pointer;transition:all 0.15s;letter-spacing:0.02em}
+button:hover{background:var(--ox-deep);color:var(--gold)}
+button.ghost{background:transparent;color:var(--brass);border:1px solid var(--brass)}
+button.ghost:hover{background:var(--ox-deep);color:var(--gold);border-color:var(--gold)}
+button.small{padding:7px 14px;font-size:0.85rem}
+.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:10px 0}
+.samples{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.samples button{background:var(--void-3);color:var(--cream);border:1px solid var(--ox-deep);font-size:0.82rem;padding:7px 14px}
+.samples button:hover{border-color:var(--brass);color:var(--gold)}
+.disclaimer{background:var(--ox-deep);border-left:3px solid var(--gold);padding:12px 14px;margin-bottom:14px;border-radius:3px;font-size:0.88rem}
+.disclaimer strong{color:var(--gold);font-family:'Libre Baskerville',serif}
+.verdict{display:none;margin-top:14px;padding:20px;border-radius:4px;border-left:5px solid var(--brass)}
+.verdict.show{display:block}
+.verdict.prohibited{background:linear-gradient(135deg,rgba(122,31,31,0.3) 0%,var(--void-3) 100%);border-left-color:var(--prohibited)}
+.verdict.high{background:linear-gradient(135deg,rgba(168,50,50,0.25) 0%,var(--void-3) 100%);border-left-color:var(--high)}
+.verdict.limited{background:linear-gradient(135deg,rgba(184,151,74,0.2) 0%,var(--void-3) 100%);border-left-color:var(--limited)}
+.verdict.minimal{background:linear-gradient(135deg,rgba(74,124,74,0.2) 0%,var(--void-3) 100%);border-left-color:var(--minimal)}
+.verdict h3{font-family:'Libre Baskerville',serif;font-size:1.6rem;margin-bottom:8px}
+.verdict.prohibited h3{color:var(--prohibited)}
+.verdict.high h3{color:var(--high)}
+.verdict.limited h3{color:var(--limited)}
+.verdict.minimal h3{color:var(--minimal)}
+.verdict .conf{font-family:'IBM Plex Mono',monospace;color:var(--brass);font-size:0.85rem;margin-bottom:12px;letter-spacing:0.05em}
+.verdict .why{color:var(--cream);margin-bottom:14px;font-size:0.95rem}
+.verdict .triggers{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.verdict .trig{background:var(--void);color:var(--gold);padding:3px 10px;border-radius:2px;font-family:'IBM Plex Mono',monospace;font-size:0.78rem;letter-spacing:0.05em}
+.verdict h4{font-family:'IBM Plex Mono',monospace;color:var(--brass);font-size:0.82rem;text-transform:uppercase;letter-spacing:0.08em;margin:14px 0 8px}
+.verdict ul{padding-left:22px;color:var(--cream);font-size:0.92rem}
+.verdict ul li{margin-bottom:5px}
+.verdict ul li code{color:var(--gold);font-family:'IBM Plex Mono',monospace;background:var(--void);padding:1px 6px;border-radius:2px;font-size:0.85rem}
+details{border:1px solid var(--ox-deep);border-radius:3px;margin-bottom:8px;background:var(--void-3)}
+details summary{padding:12px 14px;cursor:pointer;color:var(--brass);font-family:'Libre Baskerville',serif;font-size:1rem;list-style:none}
+details summary::-webkit-details-marker{display:none}
+details summary::before{content:'▸ ';color:var(--ox);margin-right:6px}
+details[open] summary::before{content:'▾ ';color:var(--gold)}
+details summary:hover{color:var(--gold)}
+details .body{padding:0 14px 14px;color:var(--cream);font-size:0.92rem;line-height:1.6}
+details .body strong{color:var(--brass)}
+details .body code{color:var(--gold);font-family:'IBM Plex Mono',monospace;background:var(--void);padding:1px 6px;border-radius:2px;font-size:0.85rem}
+details .body ul{padding-left:20px;margin-bottom:8px}
+details .body li{margin-bottom:4px}
+.search-result{padding:12px 14px;border-bottom:1px solid var(--ox-deep);font-size:0.9rem}
+.search-result:last-child{border-bottom:none}
+.search-result .a{color:var(--gold);font-family:'IBM Plex Mono',monospace;font-weight:500}
+.search-result .t{color:var(--cream);margin-left:8px}
+.search-result .d{color:var(--cream);opacity:0.75;font-size:0.85rem;margin-top:4px}
+.snippet{background:var(--void);border:1px solid var(--ox-deep);border-radius:3px;padding:14px;font-family:'IBM Plex Mono',monospace;font-size:0.82rem;color:var(--cream);overflow-x:auto;white-space:pre;margin-bottom:10px;position:relative;line-height:1.5}
+.snippet button.copy{position:absolute;top:8px;right:8px;padding:4px 10px;font-size:0.72rem;background:var(--void-3);color:var(--brass);border:1px solid var(--brass)}
+.snippet button.copy:hover{color:var(--gold);border-color:var(--gold)}
+.badge-preview{display:inline-flex;align-items:center;gap:8px;background:var(--void-3);border:1px solid var(--brass);color:var(--gold);padding:8px 14px;border-radius:20px;font-size:0.85rem;font-family:'IBM Plex Mono',monospace;margin:10px 0;letter-spacing:0.05em}
+.badge-preview .b{color:var(--brass);font-size:1.1rem}
+.checklist{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.checklist label{display:flex;align-items:flex-start;gap:10px;padding:11px 13px;background:var(--void-3);border:1px solid var(--ox-deep);border-radius:3px;cursor:pointer;font-size:0.92rem}
+.checklist label:hover{border-color:var(--brass)}
+.checklist input[type=checkbox]{margin-top:4px;accent-color:var(--gold)}
+.checklist label:has(input:checked){background:rgba(74,124,74,0.08);border-color:var(--ok)}
+.checklist .lab{font-family:'Libre Baskerville',serif;color:var(--brass)}
+.checklist .desc{display:block;font-size:0.78rem;opacity:0.75;margin-top:4px;font-family:'IBM Plex Mono',monospace}
+.checklist .art{color:var(--gold);font-family:'IBM Plex Mono',monospace;font-size:0.75rem;margin-left:6px;letter-spacing:0.05em}
+.checkprogress{margin-top:12px;font-family:'IBM Plex Mono',monospace;font-size:0.88rem;color:var(--brass)}
+.checkprogress.ready{color:var(--ok)}
+.log-entry{padding:11px 14px;border-bottom:1px solid var(--ox-deep);font-size:0.88rem}
+.log-entry:last-child{border-bottom:none}
+.log-entry .ts{color:var(--brass);font-family:'IBM Plex Mono',monospace;font-size:0.75rem}
+.log-entry .what{color:var(--cream);margin-top:3px;font-family:'Libre Baskerville',serif}
+.log-entry .tier{display:inline-block;padding:1px 8px;border-radius:2px;font-family:'IBM Plex Mono',monospace;font-size:0.75rem;letter-spacing:0.05em;margin-left:6px}
+.log-entry .tier.prohibited{background:var(--prohibited);color:var(--cream)}
+.log-entry .tier.high{background:var(--high);color:var(--cream)}
+.log-entry .tier.limited{background:var(--limited);color:var(--void)}
+.log-entry .tier.minimal{background:var(--minimal);color:var(--cream)}
+.empty{color:var(--cream);opacity:0.5;font-style:italic;text-align:center;padding:18px;font-size:0.88rem}
+footer{margin-top:36px;padding:20px 0;text-align:center;color:var(--brass);font-size:0.82rem;font-family:'IBM Plex Mono',monospace;border-top:1px solid var(--ox-deep)}
+.glyph-seal{color:var(--gold);font-size:1.2rem}
+@media(max-width:600px){
+  .container{padding:16px 12px 40px}
+  header h1{font-size:1.5rem}
+  section{padding:16px 14px}
+  button{padding:13px 18px;font-size:1rem}
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <div class="brand">
+    <span class="glyph">◊</span>
+    <h1>fall-euaiact</h1>
+    <span class="tag">EU AI Act sovereign toolkit · prime 607 · ◊·κ=1</span>
+  </div>
+  <p class="sub">Paste your AI system description → get risk tier with article cites. Navigate the Act by use case. Drop in audit-trail JS for Article 12. Generate transparency badges. Built sovereign · runs offline · your data never leaves the browser.</p>
+  <span class="priv">RESEARCH ONLY · NOT LEGAL ADVICE · verify with counsel</span>
+</header>
+
+<div class="disclaimer">
+  <strong>Honest framing:</strong> this is a heuristic toolkit grounded in the AI Act text (Regulation 2024/1689). The risk classifier is a starting point, not a definitive judgment. For systems that materially affect anyone, get a qualified legal opinion. The Act's full text is at <a href="https://eur-lex.europa.eu/eli/reg/2024/1689/oj" target="_blank">eur-lex.europa.eu/eli/reg/2024/1689/oj</a>.
+</div>
+
+<!-- ─── RISK CLASSIFIER ─── -->
+<section>
+  <h2><span class="num">R0 ●</span> Risk classifier</h2>
+  <p class="intro">Paste a plain-English description of what your AI system does. The classifier matches against the Act's risk tiers and returns the most-likely category with the article cites you need to read.</p>
+  <textarea id="sysDesc" placeholder="Example: An AI system that screens CVs for a recruitment agency. Takes uploaded CVs, scores each candidate 0-100 against the job description, ranks them, and rejects the bottom 50% automatically without human review."></textarea>
+  <div class="row">
+    <button onclick="classify()">Classify</button>
+    <button class="ghost" onclick="clearClassify()">Clear</button>
+  </div>
+  <div class="samples">
+    <button onclick="loadSample(0)">CV screening (high-risk)</button>
+    <button onclick="loadSample(1)">Customer chatbot (limited)</button>
+    <button onclick="loadSample(2)">Credit scoring (high-risk)</button>
+    <button onclick="loadSample(3)">Social scoring (prohibited)</button>
+    <button onclick="loadSample(4)">Spam filter (minimal)</button>
+  </div>
+  <div id="verdict" class="verdict"></div>
+</section>
+
+<!-- ─── ARTICLE NAVIGATOR ─── -->
+<section>
+  <h2><span class="num">R1 〜</span> Article navigator · search the Act by use case</h2>
+  <p class="intro">Most common operational questions mapped to the articles you need. Click to expand. Text is summaries — read the Act text via the official link for legal weight.</p>
+
+  <div class="row" style="margin-bottom:14px">
+    <input id="artSearch" type="text" placeholder="search: hiring · biometrics · chatbot · audit · oversight..." oninput="filterArticles()">
+  </div>
+
+  <div id="articleList">
+    <details data-tags="prohibited subliminal manipulation vulnerability social scoring biometric realtime predictive policing emotion workplace scraping">
+      <summary>Article 5 · Prohibited AI practices (don't deploy these)</summary>
+      <div class="body">
+        <p>Eight categories are flat-banned. If your system does any of these in the EU, you cannot deploy:</p>
+        <ul>
+          <li><strong>Subliminal/manipulative techniques</strong> that materially distort behaviour and cause harm</li>
+          <li><strong>Exploitation of vulnerabilities</strong> (age, disability, social/economic situation) to materially distort behaviour</li>
+          <li><strong>Social scoring</strong> by public authorities causing detrimental treatment</li>
+          <li><strong>Predictive policing</strong> assessing risk of an individual committing a crime based solely on profiling</li>
+          <li><strong>Untargeted scraping</strong> of facial images from internet/CCTV for facial recognition databases</li>
+          <li><strong>Emotion recognition</strong> in workplaces and educational institutions (with narrow medical/safety carveouts)</li>
+          <li><strong>Biometric categorisation</strong> by race, political opinion, sexual orientation, religion etc.</li>
+          <li><strong>Real-time remote biometric identification</strong> in public spaces for law enforcement (with very narrow exceptions)</li>
+        </ul>
+        <p><strong>Enforcement:</strong> applies from <code>2 Feb 2025</code>. Fines up to <code>€35M or 7% global turnover</code>.</p>
+      </div>
+    </details>
+
+    <details data-tags="high-risk classification annex iii biometrics critical infrastructure education employment hiring credit essential services law enforcement migration justice">
+      <summary>Article 6 + Annex III · High-risk classification (the wedge)</summary>
+      <div class="body">
+        <p>Your system is <strong>high-risk</strong> if it falls into one of the 8 Annex III categories:</p>
+        <ul>
+          <li><code>1</code> Biometrics (when not Article 5 prohibited)</li>
+          <li><code>2</code> Critical infrastructure (water · gas · electricity · road · rail · digital infra)</li>
+          <li><code>3</code> Education & vocational training (admissions · scoring · cheating detection)</li>
+          <li><code>4</code> Employment, worker management & access to self-employment (<strong>CV screening · performance evaluation · task allocation</strong>)</li>
+          <li><code>5</code> Access to essential services (credit scoring · health insurance pricing · emergency services dispatch · public benefits eligibility)</li>
+          <li><code>6</code> Law enforcement (evidence reliability · profiling · crime analytics)</li>
+          <li><code>7</code> Migration, asylum & border control</li>
+          <li><code>8</code> Administration of justice and democratic processes</li>
+        </ul>
+        <p><strong>Carveouts:</strong> if your system performs a narrow procedural task, or just improves a previously-completed human activity, OR is purely preparatory — you can argue it's NOT high-risk under Article 6(3). Document this assessment.</p>
+        <p><strong>Enforcement:</strong> high-risk obligations apply from <code>2 Aug 2026</code> (for standalone systems) or <code>2 Aug 2027</code> (when AI is a safety component of a product covered by other EU regulation).</p>
+      </div>
+    </details>
+
+    <details data-tags="risk management high-risk article 9">
+      <summary>Article 9 · Risk management system (if high-risk)</summary>
+      <div class="body">
+        <p>You must establish, implement, document and maintain a risk management system across the entire system lifecycle. Specifically:</p>
+        <ul>
+          <li>Identify and analyse known and foreseeable risks</li>
+          <li>Estimate and evaluate risks that may emerge in intended use AND foreseeable misuse</li>
+          <li>Adopt targeted risk-management measures</li>
+          <li>Test the system to identify the most appropriate risk-management measures</li>
+        </ul>
+        <p>The system must be tested against established metrics throughout development and before placing on the market.</p>
+      </div>
+    </details>
+
+    <details data-tags="data governance article 10 quality training">
+      <summary>Article 10 · Data and data governance</summary>
+      <div class="body">
+        <p>Training, validation and testing datasets must:</p>
+        <ul>
+          <li>Be relevant, sufficiently representative, and as far as possible <strong>free of errors and complete</strong></li>
+          <li>Have the appropriate statistical properties for the intended purpose</li>
+          <li>Have data governance practices documented (collection · origin · annotation · curation)</li>
+          <li>Examine for possible biases that affect health, safety, fundamental rights, or could lead to discrimination</li>
+        </ul>
+        <p><strong>Sovereign-friendly:</strong> if your training data never leaves the user's device (your estate's pattern), this article is much easier to satisfy than for hosted services.</p>
+      </div>
+    </details>
+
+    <details data-tags="technical documentation article 11 annex iv">
+      <summary>Article 11 + Annex IV · Technical documentation</summary>
+      <div class="body">
+        <p>Before placing a high-risk system on the market, you must compile <strong>technical documentation</strong> per Annex IV. This includes:</p>
+        <ul>
+          <li>General description of the AI system (intended purpose · provider · version)</li>
+          <li>Detailed description of system elements (data · algorithms · architecture)</li>
+          <li>Detailed information on monitoring, functioning and control</li>
+          <li>Risk management documentation</li>
+          <li>Description of changes through lifecycle</li>
+          <li>List of harmonised standards applied (and where deviations exist, the technical solutions adopted)</li>
+          <li>EU declaration of conformity</li>
+          <li>Detailed description of the system for assessing post-market performance</li>
+        </ul>
+      </div>
+    </details>
+
+    <details data-tags="audit log record keeping article 12 traceability">
+      <summary>Article 12 · Automatic record-keeping (audit logs)</summary>
+      <div class="body">
+        <p>High-risk systems must enable the automatic recording of events ("logs") over the system lifetime. Logs must allow:</p>
+        <ul>
+          <li>Identification of situations that may result in the system presenting a risk</li>
+          <li>Identification of substantial modifications</li>
+          <li>Facilitation of post-market monitoring</li>
+          <li>Monitoring of operation for purposes of detecting bias</li>
+        </ul>
+        <p><strong>What to log:</strong> period of each use · reference database compared against · input data leading to a match · identification of natural persons involved in result verification.</p>
+        <p><strong>Estate wedge:</strong> your Konomi prevHash + Ed25519 + cert chain already does this — better than most. See the "Drop-in audit shim" section below for the JS pattern.</p>
+      </div>
+    </details>
+
+    <details data-tags="transparency deployer article 13 information">
+      <summary>Article 13 · Transparency to deployers</summary>
+      <div class="body">
+        <p>The system must come with instructions for use including:</p>
+        <ul>
+          <li>Identity and contact details of provider</li>
+          <li>Intended purpose · including specific geographical/behavioural/functional setting</li>
+          <li>Level of accuracy, robustness and cybersecurity</li>
+          <li>Performance regarding specific persons or groups</li>
+          <li>Risks specific to the intended purpose</li>
+          <li>Human oversight measures (per Article 14)</li>
+          <li>Expected lifetime · maintenance · log access</li>
+        </ul>
+      </div>
+    </details>
+
+    <details data-tags="human oversight article 14 pause review">
+      <summary>Article 14 · Human oversight (the pause-before pattern)</summary>
+      <div class="body">
+        <p>High-risk systems must be designed so they can be effectively overseen by humans during use. The oversight must enable persons to:</p>
+        <ul>
+          <li>Understand the system's capacities and limitations</li>
+          <li>Remain aware of "automation bias"</li>
+          <li>Correctly interpret the output</li>
+          <li><strong>Decide not to use the output</strong> or override / reverse it</li>
+          <li><strong>Intervene or interrupt</strong> the system via a "stop" button or similar</li>
+        </ul>
+        <p><strong>Estate match:</strong> every Fall* tool's pause-before-Save / pause-before-Post / pause-before-Submit gate is exactly this. You've been Article-14-compliant since v1.</p>
+      </div>
+    </details>
+
+    <details data-tags="accuracy robustness cybersecurity article 15">
+      <summary>Article 15 · Accuracy, robustness and cybersecurity</summary>
+      <div class="body">
+        <p>High-risk systems must achieve an appropriate level of:</p>
+        <ul>
+          <li><strong>Accuracy</strong> · declared in instructions for use</li>
+          <li><strong>Robustness</strong> · to errors, faults, inconsistencies (technical redundancy · backup plans · fail-safe)</li>
+          <li><strong>Cybersecurity</strong> · resilient against attempts to alter use, outputs or performance · including data-poisoning and adversarial examples</li>
+        </ul>
+      </div>
+    </details>
+
+    <details data-tags="transparency end users article 50 chatbot deepfake emotion biometric">
+      <summary>Article 50 · Transparency to end-users (the "this is AI" disclosure)</summary>
+      <div class="body">
+        <p>Four categories trigger user-facing transparency obligations:</p>
+        <ul>
+          <li><strong>AI systems interacting with humans</strong> (chatbots) → inform the user they're talking to AI, unless obvious</li>
+          <li><strong>Emotion recognition / biometric categorisation</strong> → inform users when exposed</li>
+          <li><strong>Deepfakes / manipulated content</strong> → disclose that content is AI-generated/manipulated</li>
+          <li><strong>AI-generated text on matters of public interest</strong> → disclose AI generation (carveouts exist)</li>
+        </ul>
+        <p><strong>Generate a transparency badge:</strong> see the badge section below.</p>
+        <p><strong>Enforcement:</strong> applies from <code>2 Aug 2026</code>.</p>
+      </div>
+    </details>
+
+    <details data-tags="deployer obligations article 26">
+      <summary>Article 26 · Obligations of deployers (the customer)</summary>
+      <div class="body">
+        <p>If you're the <strong>deployer</strong> (the one putting a high-risk system into service in the EU, even if you didn't build it), you have to:</p>
+        <ul>
+          <li>Use the system in accordance with instructions</li>
+          <li>Assign human oversight to natural persons with the necessary competence, training, authority, and support</li>
+          <li>Monitor operation and inform the provider of risks or serious incidents</li>
+          <li>Keep the logs (Article 12) for at least 6 months</li>
+          <li>If you make decisions about natural persons using the system → inform them they're subject to a high-risk AI system</li>
+          <li>For workplace use → <strong>inform workers' representatives and the affected workers</strong> before deployment</li>
+        </ul>
+      </div>
+    </details>
+
+    <details data-tags="general purpose AI GPAI article 51 foundation model">
+      <summary>Articles 51-55 · General Purpose AI (GPAI) obligations</summary>
+      <div class="body">
+        <p>If you're a <strong>provider</strong> of a general-purpose AI model (foundation model):</p>
+        <ul>
+          <li>Technical documentation (Annex XI)</li>
+          <li>Information for downstream providers (Annex XII)</li>
+          <li>Copyright policy for training data</li>
+          <li>Public summary of training content</li>
+        </ul>
+        <p><strong>If the model presents systemic risk</strong> (huge compute thresholds), additional obligations: model evaluations, adversarial testing, incident tracking, cybersecurity protection.</p>
+        <p><strong>Enforcement:</strong> applies from <code>2 Aug 2025</code> for new models; existing models had until 2 Aug 2027.</p>
+      </div>
+    </details>
+
+    <details data-tags="penalties fines enforcement market surveillance">
+      <summary>Penalties · what non-compliance costs</summary>
+      <div class="body">
+        <p>Maximum fines (whichever is higher):</p>
+        <ul>
+          <li><strong>Prohibited AI (Article 5)</strong>: €35M or 7% of global annual turnover</li>
+          <li><strong>Non-compliance with high-risk obligations</strong>: €15M or 3%</li>
+          <li><strong>Supplying incorrect information to authorities</strong>: €7.5M or 1%</li>
+        </ul>
+        <p>SMEs and startups: lower of the two amounts (capped not floored).</p>
+        <p>Member state authorities enforce. The European AI Office coordinates and is the sole authority for GPAI.</p>
+      </div>
+    </details>
+  </div>
+</section>
+
+<!-- ─── DROP-IN AUDIT SHIM ─── -->
+<section>
+  <h2><span class="num">R6 ◯</span> Drop-in audit shim · Article 12 ready</h2>
+  <p class="intro">Vanilla JS · zero dependencies · drop into any HTML tool to add Article-12-compliant logging. Stores in IndexedDB · cryptographically chained via SHA-256 prevHash. Export to JSON for the 6-month retention requirement.</p>
+
+  <div class="snippet"><button class="copy" onclick="copySnippet(this)">copy</button>// ◊ Article 12 audit shim · drop into any sovereign tool
+const EU_AUDIT = (() => {
+  const DB_NAME = 'eu-aiact-audit';
+  let db = null;
+  let prevHash = '0'.repeat(64);
+
+  async function open() {
+    if (db) return db;
+    return new Promise((res, rej) => {
+      const r = indexedDB.open(DB_NAME, 1);
+      r.onupgradeneeded = e => {
+        const d = e.target.result;
+        if (!d.objectStoreNames.contains('log')) d.createObjectStore('log', { keyPath: 'id', autoIncrement: true });
+      };
+      r.onsuccess = e => { db = e.target.result; res(db); };
+      r.onerror = e => rej(e.target.error);
+    });
+  }
+
+  async function sha256(s) {
+    const buf = new TextEncoder().encode(s);
+    const h = await crypto.subtle.digest('SHA-256', buf);
+    return Array.from(new Uint8Array(h)).map(b => b.toString(16).padStart(2,'0')).join('');
+  }
+
+  async function log(event) {
+    await open();
+    const entry = {
+      ts: new Date().toISOString(),
+      event_type: event.type || 'unknown',
+      input_summary: event.input?.slice(0, 200) || null,
+      output_summary: event.output?.slice(0, 200) || null,
+      operator_id: event.operator || null,
+      prev_hash: prevHash,
+    };
+    entry.hash = await sha256(JSON.stringify(entry));
+    prevHash = entry.hash;
+    const tx = db.transaction('log', 'readwrite');
+    tx.objectStore('log').add(entry);
+    return entry;
+  }
+
+  async function exportAll() {
+    await open();
+    const tx = db.transaction('log', 'readonly');
+    return new Promise((res, rej) => {
+      const r = tx.objectStore('log').getAll();
+      r.onsuccess = () => res(r.result);
+      r.onerror = e => rej(e.target.error);
+    });
+  }
+
+  return { log, exportAll };
+})();
+
+// ─── usage ─────────────────────────────────────────────
+// At every Article-12-relevant event:
+EU_AUDIT.log({
+  type: 'inference',          // or 'model_update' · 'human_review' · 'override' · 'error'
+  input: 'user query text',
+  output: 'system response',
+  operator: 'user-id-or-anon'
+});
+
+// At export time (Article 26 · 6-month retention):
+const allLogs = await EU_AUDIT.exportAll();
+console.log(JSON.stringify(allLogs, null, 2));</div>
+
+  <p style="color:var(--cream);opacity:0.78;font-size:0.88rem">Composes with Konomi's prevHash + Ed25519 chain already running in your estate. The cryptographic chain means logs are tamper-evident · which goes beyond Article 12's literal text but matches the spirit (and is what auditors will actually want to see).</p>
+</section>
+
+<!-- ─── TRANSPARENCY BADGE ─── -->
+<section>
+  <h2><span class="num">R3 ♡</span> Article 50 · transparency badge generator</h2>
+  <p class="intro">Generate a small visible badge for your AI-using interface. Covers chatbots, emotion recognition systems, biometric categorisation, deepfakes, and AI-generated public-interest text.</p>
+
+  <div class="row">
+    <select id="badgeType">
+      <option value="chatbot">Chatbot · "You're talking to AI"</option>
+      <option value="emotion">Emotion recognition</option>
+      <option value="biometric">Biometric categorisation</option>
+      <option value="deepfake">AI-generated / manipulated content</option>
+      <option value="public">AI-generated public-interest text</option>
+    </select>
+    <button onclick="renderBadge()">Generate</button>
+  </div>
+
+  <div id="badgeOut" class="badge-preview" style="display:none"></div>
+
+  <div class="snippet" id="badgeCode" style="display:none"><button class="copy" onclick="copySnippet(this)">copy</button></div>
+</section>
+
+<!-- ─── COMPLIANCE CHECKLIST ─── -->
+<section>
+  <h2><span class="num">R5 ◐</span> High-risk checklist · Annex IV documentation</h2>
+  <p class="intro">If your classifier verdict came back HIGH RISK, tick each item once documentation exists. Aim for 100% before going live in the EU. Status persists in IndexedDB.</p>
+  <div class="checklist" id="checklist"></div>
+  <div class="checkprogress" id="checkProgress">0 / 14 documented</div>
+</section>
+
+<!-- ─── SESSION LOG ─── -->
+<section>
+  <h2><span class="num">R4 △</span> Classification log</h2>
+  <p class="intro">Every classification you run is logged locally (IndexedDB · never leaves device). Use this as your own Article 11 evidence of due-diligence assessments.</p>
+  <div id="logList"><div class="empty">No classifications yet · paste a description above to start</div></div>
+  <div class="row" style="margin-top:10px"><button class="ghost small" onclick="clearLog()">Clear log</button><button class="ghost small" onclick="exportLog()">Export JSON</button></div>
+</section>
+
+<footer>
+  <p>◊·κ=1 · fall-euaiact · prime 607 · sovereign single-file · MIT · runs offline</p>
+  <p style="margin-top:6px;opacity:0.7">Research only · not legal advice · Regulation (EU) 2024/1689 · <a href="https://eur-lex.europa.eu/eli/reg/2024/1689/oj" target="_blank">official text</a></p>
+  <p style="margin-top:8px"><span class="glyph-seal">◊·κ=φ⁴</span></p>
+</footer>
+
+</div>
+
+<script>
+const PRIME = 607;
+const KONOMI = { tier:'sovereign', minted:null, mintPending:true, prime:PRIME };
+try { window.KONOMI_LICENCE = KONOMI; } catch(_){}
+
+let bc;
+try { bc = new BroadcastChannel('fall-signal'); } catch(_){}
+function emit(kind, payload){ try{ bc && bc.postMessage({source:'fall-euaiact', kind, payload, prime:PRIME, ts:new Date().toISOString()}); }catch(_){} }
+try { emit('fall_euaiact_online', { version:'1.0', prime:PRIME }); } catch(_){}
+
+// ─── SAMPLES ───
+const SAMPLES = [
+  "An AI system that screens CVs for a recruitment agency. Takes uploaded CVs, scores each candidate 0-100 against the job description, ranks them, and rejects the bottom 50% automatically without human review.",
+  "A customer support chatbot on an e-commerce website. Handles FAQs, order status, returns. Hands off to a human agent for complex issues. Discloses it's AI in the opening message.",
+  "An AI scoring credit applications for a consumer lender. Combines income, employment, credit history, behavioural data to produce an approval/decline + suggested interest rate.",
+  "A social scoring system for citizens that aggregates online behaviour, financial conduct, and social network activity into a single trust score that determines access to government services.",
+  "An email spam filter that classifies incoming emails as spam or legit using bag-of-words and logistic regression. Falls back to a heuristic rule set when the model is uncertain.",
+];
+function loadSample(i){ document.getElementById('sysDesc').value = SAMPLES[i]; }
+function clearClassify(){ document.getElementById('sysDesc').value = ''; document.getElementById('verdict').classList.remove('show'); }
+
+// ─── RISK CLASSIFIER (T0 keyword heuristic) ───
+const RULES = [
+  { tier:'prohibited', label:'PROHIBITED · Article 5',
+    triggers:[
+      { re:/social scor|citizen scor|trust score.*citizen/i, art:'5(1)(c)', note:'social scoring by public authorities' },
+      { re:/predictive polic|assess.*risk.*committ.*crim/i, art:'5(1)(d)', note:'predictive policing on individuals' },
+      { re:/scrap.*facial|facial.*scrap.*CCTV/i, art:'5(1)(e)', note:'untargeted scraping for facial recognition' },
+      { re:/emotion recognition.*workplace|emotion.*employee|emotion.*school/i, art:'5(1)(f)', note:'emotion recognition in workplace/education' },
+      { re:/biometric categor.*(?:race|religion|political|sexual)/i, art:'5(1)(g)', note:'biometric categorisation by sensitive attributes' },
+      { re:/real.?time.*biometric.*public|real.?time.*facial.*recogn.*public/i, art:'5(1)(h)', note:'real-time remote biometric ID in public for LE' },
+      { re:/subliminal|manipulat.*behaviour.*harm/i, art:'5(1)(a)', note:'subliminal/manipulative techniques causing harm' },
+      { re:/exploit.*vulnerab.*(?:age|disability|economic)/i, art:'5(1)(b)', note:'exploitation of vulnerabilities' },
+    ] },
+  { tier:'high', label:'HIGH RISK · Annex III · Articles 6-15',
+    triggers:[
+      { re:/\b(cv|c\.v\.|resume|résumé) (screening|scoring|ranking|filter)|hire.*decision|hir.*algorithm|recruit.*automat|applicant.*scor/i, art:'Annex III(4)', note:'employment · CV screening · hiring' },
+      { re:/performance evaluat|worker.*manag|task allocat.*algorithm|monitor.*employee/i, art:'Annex III(4)', note:'workplace performance evaluation' },
+      { re:/credit (scoring|decision|approval)|loan.*decision|underwrit/i, art:'Annex III(5)', note:'access to essential financial services' },
+      { re:/insurance.*pric|health.*insurance.*risk/i, art:'Annex III(5)', note:'insurance underwriting · health/life' },
+      { re:/emergency.*dispatch|triage.*emerg/i, art:'Annex III(5)', note:'emergency service dispatch' },
+      { re:/public benefit.*eligib|welfare.*decis|social.*assistance.*decis/i, art:'Annex III(5)', note:'eligibility for public benefits' },
+      { re:/student.*admiss|exam.*scor.*automat|cheating detect.*exam/i, art:'Annex III(3)', note:'education · admissions/scoring/cheating' },
+      { re:/critical infrastruct|grid.*manag|water.*manag.*AI|gas.*pipeline.*AI/i, art:'Annex III(2)', note:'critical infrastructure management' },
+      { re:/law enforcement.*evid|criminal.*profil|crime.*analyt|polic.*risk.*assess/i, art:'Annex III(6)', note:'law enforcement (non-prohibited categories)' },
+      { re:/migrat.*assess|asylum.*decis|border.*control.*AI|visa.*decis.*algorithm/i, art:'Annex III(7)', note:'migration / asylum / border control' },
+      { re:/judicial.*decis|court.*ruling.*assist|democratic.*process.*influence/i, art:'Annex III(8)', note:'administration of justice / democracy' },
+      { re:/biometric.*identif(?!.*public)|fingerprint.*match|face.*verif|voice.*identif/i, art:'Annex III(1)', note:'biometric identification (non-prohibited)' },
+    ] },
+  { tier:'limited', label:'LIMITED RISK · Article 50 transparency',
+    triggers:[
+      { re:/chatbot|customer support.*AI|conversation.*assistant|virtual.*agent/i, art:'50(1)', note:'chatbot · disclose AI to user' },
+      { re:/deepfake|synthetic.*video|generated.*image|AI.*generated.*content|content.*manipulat/i, art:'50(4)', note:'deepfake / AI-generated content disclosure' },
+      { re:/emotion recognition(?!.*workplace)/i, art:'50(3)', note:'emotion recognition (outside workplace) disclosure' },
+      { re:/biometric categor/i, art:'50(3)', note:'biometric categorisation disclosure' },
+      { re:/AI.*generated.*text.*(?:news|public|article)/i, art:'50(4)', note:'AI-generated public interest text disclosure' },
+    ] },
+];
+
+function classify(){
+  const text = document.getElementById('sysDesc').value.trim();
+  if (!text){ alert('paste a system description first'); return; }
+  let bestTier = 'minimal', bestLabel = 'MINIMAL RISK · default tier', hits = [];
+  // run all tiers in priority order · prohibited > high > limited > minimal
+  for (const tier of RULES) {
+    for (const trig of tier.triggers) {
+      if (trig.re.test(text)) hits.push({ tier: tier.tier, label: tier.label, ...trig });
+    }
+    if (hits.some(h => h.tier === tier.tier)) {
+      bestTier = tier.tier; bestLabel = tier.label;
+      break;
+    }
+  }
+  const v = document.getElementById('verdict');
+  v.className = 'verdict show ' + bestTier;
+  const tierHits = hits.filter(h => h.tier === bestTier);
+  const confidence = tierHits.length === 0 ? 'low (no specific triggers · default to minimal)' :
+                     tierHits.length === 1 ? 'one trigger matched · moderate confidence' :
+                     tierHits.length + ' triggers matched · high confidence';
+  let html = `<h3>${bestLabel}</h3>`;
+  html += `<div class="conf">${confidence}</div>`;
+  if (tierHits.length){
+    html += `<div class="triggers">${tierHits.map(h => `<span class="trig">${h.note}</span>`).join('')}</div>`;
+    html += `<h4>Read these articles</h4><ul>`;
+    const arts = [...new Set(tierHits.map(h => h.art))];
+    for (const a of arts) html += `<li>Article <code>${a}</code></li>`;
+    html += `</ul>`;
+  }
+  if (bestTier === 'prohibited'){
+    html += `<h4>Action</h4><p>Do not deploy in the EU. Re-scope the use case OR remove the prohibited element. If you need to argue an exception, get written legal opinion first.</p>`;
+  } else if (bestTier === 'high'){
+    html += `<h4>Action</h4><p>You're in the high-risk regime. Read Articles 8-15 + Article 26 (deployer obligations). Complete the Annex IV documentation checklist below. Compliance deadline: <code>2 Aug 2026</code>.</p>`;
+  } else if (bestTier === 'limited'){
+    html += `<h4>Action</h4><p>Add the transparency disclosure required by Article 50 — see the badge generator below. Most other obligations don't apply.</p>`;
+  } else {
+    html += `<h4>Action</h4><p>Minimal risk · no specific AI Act obligations beyond voluntary codes of conduct. Other EU law (GDPR · Product Safety · sectoral rules) still applies.</p>`;
+  }
+  v.innerHTML = html;
+  emit('fall_euaiact_classified', { tier: bestTier, trigger_count: tierHits.length });
+  logEntry(text, bestTier, bestLabel, tierHits.map(h => h.art));
+}
+
+// ─── ARTICLE SEARCH ───
+function filterArticles(){
+  const q = document.getElementById('artSearch').value.toLowerCase().trim();
+  document.querySelectorAll('#articleList details').forEach(d => {
+    const tags = d.dataset.tags || '';
+    const txt = d.textContent.toLowerCase();
+    d.style.display = (!q || tags.includes(q) || txt.includes(q)) ? 'block' : 'none';
+  });
+}
+
+// ─── BADGE GENERATOR ───
+const BADGES = {
+  chatbot:   { glyph:'◊', text:'You are interacting with AI', code:'<div role="status" aria-label="AI disclosure">◊ You are interacting with an AI system · per EU AI Act Article 50(1)</div>' },
+  emotion:   { glyph:'◐', text:'Emotion recognition active', code:'<div role="status" aria-label="Emotion recognition disclosure">◐ This system uses emotion recognition · per EU AI Act Article 50(3)</div>' },
+  biometric: { glyph:'●', text:'Biometric categorisation active', code:'<div role="status" aria-label="Biometric categorisation disclosure">● This system uses biometric categorisation · per EU AI Act Article 50(3)</div>' },
+  deepfake:  { glyph:'△', text:'AI-generated / manipulated content', code:'<div role="status" aria-label="AI-generated content disclosure">△ This content is AI-generated or manipulated · per EU AI Act Article 50(4)</div>' },
+  public:    { glyph:'〜', text:'AI-generated public-interest text', code:'<div role="status" aria-label="AI text disclosure">〜 This text is AI-generated · per EU AI Act Article 50(4)</div>' },
+};
+
+function renderBadge(){
+  const t = document.getElementById('badgeType').value;
+  const b = BADGES[t];
+  const out = document.getElementById('badgeOut');
+  out.style.display = 'inline-flex';
+  out.innerHTML = `<span class="b">${b.glyph}</span> <span>${b.text}</span>`;
+  const code = document.getElementById('badgeCode');
+  code.style.display = 'block';
+  code.innerHTML = '<button class="copy" onclick="copySnippet(this)">copy</button>' + b.code.replace(/</g, '&lt;');
+  emit('fall_euaiact_badge_generated', { type: t });
+}
+
+// ─── COPY snippet ───
+function copySnippet(btn){
+  const txt = btn.parentElement.innerText.replace(/copy$/, '').trim();
+  navigator.clipboard.writeText(txt).then(()=>{
+    btn.textContent='copied';
+    setTimeout(()=>btn.textContent='copy', 1200);
+  }).catch(()=>prompt('Copy:', txt));
+}
+
+// ─── ANNEX IV CHECKLIST ───
+const CHECK_ITEMS = [
+  { lab:'General description', art:'Annex IV(1)', desc:'intended purpose · provider · version · interactions with other systems' },
+  { lab:'System architecture', art:'Annex IV(2)(a)', desc:'computational resources · model architecture · training methods' },
+  { lab:'Data governance documented', art:'Article 10 + IV(2)(d)', desc:'training data sources · annotation · curation · representativeness · bias examination' },
+  { lab:'Risk management system', art:'Article 9 + IV(2)(f)', desc:'identified risks · mitigation measures · residual risks · tested' },
+  { lab:'Validation & testing report', art:'Annex IV(2)(g)', desc:'metrics · test datasets · results against accuracy/robustness/cybersecurity' },
+  { lab:'Cybersecurity measures', art:'Article 15 + IV(2)(h)', desc:'protection against adversarial examples · data poisoning · model evasion' },
+  { lab:'Performance per group', art:'Annex IV(3)', desc:'metrics broken down by gender · age · race · disability where relevant' },
+  { lab:'Human oversight measures', art:'Article 14 + IV(2)(e)', desc:'how oversight is enabled · stop mechanism · override capacity · automation bias awareness' },
+  { lab:'Predictable changes / lifecycle', art:'Annex IV(2)(i)', desc:'planned updates · retraining · how performance is maintained' },
+  { lab:'Instructions for deployers', art:'Article 13', desc:'capacity · limitations · accuracy levels · risks · oversight setup' },
+  { lab:'EU declaration of conformity', art:'Article 47', desc:'signed · contact details · conformity statement · standards applied' },
+  { lab:'Logging design', art:'Article 12', desc:'what events are logged · retention · access · structure (see drop-in shim)' },
+  { lab:'Post-market monitoring plan', art:'Article 72', desc:'how performance/risks are monitored after deployment · who reviews · cadence' },
+  { lab:'Serious incident reporting process', art:'Article 73', desc:'how serious incidents are detected · 15-day reporting to authority · investigation' },
+];
+
+function renderChecklist(){
+  document.getElementById('checklist').innerHTML = CHECK_ITEMS.map((it, i) => `
+    <label><input type="checkbox" data-i="${i}" onchange="updateCheck()"><div><div class="lab">${it.lab} <span class="art">${it.art}</span></div><div class="desc">${it.desc}</div></div></label>
+  `).join('');
+  loadCheckState();
+}
+
+function updateCheck(){
+  const boxes = document.querySelectorAll('#checklist input[type=checkbox]');
+  const done = Array.from(boxes).filter(b => b.checked).length;
+  const total = boxes.length;
+  const el = document.getElementById('checkProgress');
+  el.textContent = done === total ? `✓ ${done}/${total} documented · ready for conformity assessment` : `${done} / ${total} documented`;
+  el.classList.toggle('ready', done === total);
+  // persist
+  try {
+    const state = Array.from(boxes).map(b => b.checked);
+    localStorage.setItem('euaiact_checklist', JSON.stringify(state));
+  } catch(_){}
+  emit('fall_euaiact_checklist_progress', { done, total });
+}
+
+function loadCheckState(){
+  try {
+    const state = JSON.parse(localStorage.getItem('euaiact_checklist') || '[]');
+    document.querySelectorAll('#checklist input[type=checkbox]').forEach((b, i) => {
+      if (state[i]) b.checked = true;
+    });
+    updateCheck();
+  } catch(_){}
+}
+
+// ─── IndexedDB classification log ───
+const DB = 'fall-euaiact';
+let db;
+function openDb(){
+  return new Promise((res, rej) => {
+    const r = indexedDB.open(DB, 1);
+    r.onupgradeneeded = e => {
+      const d = e.target.result;
+      if (!d.objectStoreNames.contains('log')) d.createObjectStore('log', { keyPath:'id', autoIncrement:true });
+    };
+    r.onsuccess = e => { db = e.target.result; res(db); };
+    r.onerror = e => rej(e.target.error);
+  });
+}
+
+async function logEntry(text, tier, label, articles){
+  if (!db) await openDb();
+  const e = { ts:new Date().toISOString(), excerpt: text.slice(0, 200), tier, label, articles };
+  const tx = db.transaction('log','readwrite');
+  tx.objectStore('log').add(e);
+  tx.oncomplete = renderLog;
+}
+
+async function renderLog(){
+  if (!db) await openDb();
+  const tx = db.transaction('log','readonly');
+  const r = tx.objectStore('log').getAll();
+  r.onsuccess = () => {
+    const all = r.result.slice().reverse().slice(0, 30);
+    const el = document.getElementById('logList');
+    if (!all.length){ el.innerHTML = '<div class="empty">No classifications yet · paste a description above to start</div>'; return; }
+    el.innerHTML = all.map(e => `
+      <div class="log-entry">
+        <div class="ts">${e.ts.replace('T',' ').slice(0,19)} <span class="tier ${e.tier}">${e.tier}</span></div>
+        <div class="what">${escapeHtml(e.excerpt)}${e.excerpt.length >= 200 ? '…' : ''}</div>
+        <div class="ts" style="margin-top:4px">articles: ${(e.articles||[]).join(' · ') || '—'}</div>
+      </div>`).join('');
+  };
+}
+
+async function clearLog(){
+  if (!confirm('clear classification log?')) return;
+  if (!db) await openDb();
+  const tx = db.transaction('log','readwrite');
+  tx.objectStore('log').clear();
+  tx.oncomplete = renderLog;
+}
+
+async function exportLog(){
+  if (!db) await openDb();
+  const tx = db.transaction('log','readonly');
+  const r = tx.objectStore('log').getAll();
+  r.onsuccess = () => {
+    const blob = new Blob([JSON.stringify(r.result, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'euaiact-classifications-' + new Date().toISOString().slice(0,10) + '.json'; a.click();
+    URL.revokeObjectURL(url);
+  };
+}
+
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+// init
+renderChecklist();
+openDb().then(renderLog).catch(()=>{});
+</script>
+</body>
+</html>
