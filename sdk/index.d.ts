@@ -41,20 +41,9 @@ export interface Article {
   penalty?: string;
 }
 
-export interface AnnexIIIEntry {
-  num: number;
-  title: string;
-}
-
-export interface PenaltyEntry {
-  breach: string;
-  max: string;
-}
-
-export interface DeadlineEntry {
-  date: string;
-  what: string;
-}
+export interface AnnexIIIEntry { num: number; title: string; }
+export interface PenaltyEntry { breach: string; max: string; }
+export interface DeadlineEntry { date: string; what: string; }
 
 export interface AuditEvent {
   type: string;
@@ -100,6 +89,107 @@ export interface DocGenOpts {
   draftWarning?: boolean;
 }
 
+// ─── v1.1: Annex IV factory ──────────────────────────────────────────────
+
+export type AnnexIVLanguage = 'en' | 'de' | 'fr' | 'es' | 'it' | 'nl';
+export type AnnexIVFormat = 'markdown' | 'html' | 'json';
+
+export interface AnnexIVExportOpts {
+  format?: AnnexIVFormat;
+  language?: AnnexIVLanguage;
+}
+
+export interface AnnexIVEnvelope {
+  kind: 'fall-euaiact-annexiv-v1';
+  spec: string;
+  values: Record<string, string>;
+  fields: DocField[];
+  recordedAt: string;
+  language: AnnexIVLanguage;
+  draftWarning: boolean;
+}
+
+export interface SignedDoc {
+  envelope: AnnexIVEnvelope;
+  signature: string;
+}
+
+export interface AnnexIVDoc {
+  fields: DocField[];
+  supportedLanguages: AnnexIVLanguage[];
+  toJSON(): { values: Record<string, string>; opts: DocGenOpts };
+  missing(): string[];
+  validate(): { complete: boolean; missing: string[] };
+  export(opts?: AnnexIVExportOpts): Promise<string | AnnexIVEnvelope>;
+  sign(privateKeyHex: string): Promise<SignedDoc>;
+}
+
+export interface AnnexIVLocaleStrings {
+  title: string;
+  sect1: string;
+  sect2: string;
+  sect3: string;
+  sect4: string;
+  sect5: string;
+  draftWarn: string;
+}
+
+// ─── v1.1: Article 50 transparency badge ─────────────────────────────────
+
+export type Article50Category = 'chatbot' | 'generated-text' | 'generated-image' | 'audio' | 'video';
+
+export interface TransparencyBadgeSpec {
+  category: Article50Category;
+  language?: AnnexIVLanguage;
+  systemId?: string;
+  optOutUrl?: string;
+  customLabel?: string;
+  styleVars?: { bg?: string; fg?: string; accent?: string };
+}
+
+export interface BadgeImpression {
+  ts: number;
+  userId: string;
+  systemId: string;
+  category: Article50Category;
+  language: AnnexIVLanguage;
+  [key: string]: unknown;
+}
+
+export interface BadgeEnvelope {
+  kind: 'fall-euaiact-article50-badge-v1';
+  category: Article50Category;
+  language: AnnexIVLanguage;
+  systemId: string;
+  labelHash: string;
+  recordedAt: string;
+  impressionsCount: number;
+}
+
+export interface SignedBadge {
+  envelope: BadgeEnvelope;
+  signature: string;
+}
+
+export interface TransparencyBadge {
+  supportedLanguages: AnnexIVLanguage[];
+  toJSON(): { category: Article50Category; language: AnnexIVLanguage; systemId: string; optOutUrl: string | null; label: string };
+  html(opts?: { compact?: boolean }): string;
+  mount(selectorOrEl: string | Element, opts?: { compact?: boolean }): Element;
+  recordImpression(userId: string, meta?: object): Promise<BadgeImpression>;
+  export(range?: { from?: string; to?: string }): Promise<BadgeImpression[]>;
+  sign(privateKeyHex: string): Promise<SignedBadge>;
+}
+
+// ─── v1.1: Ed25519 ──────────────────────────────────────────────────────
+
+export interface Keypair {
+  publicKey: string;
+  privateKey: string;
+}
+
+// ─── Re-exports ─────────────────────────────────────────────────────────
+
 export declare const TIERS: {
   PROHIBITED: 'prohibited';
   HIGH: 'high';
@@ -113,6 +203,8 @@ export declare const ANNEX_III_CATEGORIES: AnnexIIIEntry[];
 export declare const PENALTIES: PenaltyEntry[];
 export declare const DEADLINES: DeadlineEntry[];
 export declare const DOC_FIELDS: DocField[];
+export declare const ANNEX_IV_LOCALES: Record<AnnexIVLanguage, AnnexIVLocaleStrings>;
+export declare const ARTICLE_50_CATEGORIES: Article50Category[];
 export declare const SDK_VERSION: string;
 export declare const SPEC_VERSION: string;
 
@@ -125,3 +217,8 @@ export declare function createAuditShim(opts?: AuditOpts): AuditShim;
 export declare function generateAnnexIV(values: Record<string, string>, opts?: DocGenOpts): string;
 export declare function getDocFields(): DocField[];
 export declare function validateValues(values: Record<string, string>): string[];
+export declare function createAnnexIV(spec: Record<string, string>, opts?: DocGenOpts): AnnexIVDoc;
+export declare function createTransparencyBadge(spec: TransparencyBadgeSpec): TransparencyBadge;
+export declare function generateKeypair(): Promise<Keypair>;
+export declare function sign(message: string, privateKeyHex: string): Promise<string>;
+export declare function verify(message: string, signatureHex: string, publicKeyHex: string): Promise<boolean>;

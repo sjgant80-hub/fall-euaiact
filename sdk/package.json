@@ -1,7 +1,7 @@
 {
   "name": "fall-euaiact",
-  "version": "1.0.0",
-  "description": "EU AI Act (Regulation 2024/1689) compliance SDK · risk classifier · article navigator · audit shim · Annex IV doc generator · zero deps · MIT",
+  "version": "1.1.0",
+  "description": "EU AI Act (Regulation 2024/1689) compliance SDK · risk classifier · article navigator · audit shim · Annex IV doc generator (multi-language + signed) · Article 50 transparency badges · Ed25519 signing · zero deps · MIT",
   "type": "module",
   "main": "./index.js",
   "module": "./index.js",
@@ -14,7 +14,9 @@
     "./classifier": "./classifier.js",
     "./articles": "./articles.js",
     "./audit": "./audit.js",
-    "./docgen": "./docgen.js"
+    "./docgen": "./docgen.js",
+    "./transparency": "./transparency.js",
+    "./sign": "./sign.js"
   },
   "files": [
     "index.js",
@@ -23,6 +25,8 @@
     "articles.js",
     "audit.js",
     "docgen.js",
+    "transparency.js",
+    "sign.js",
     "README.md",
     "LICENSE"
   ],
@@ -35,11 +39,14 @@
     "compliance",
     "ai-regulation",
     "annex-iv",
+    "article-11",
     "article-12",
     "article-14",
     "article-50",
     "audit-trail",
     "risk-classification",
+    "transparency-badge",
+    "ed25519",
     "regulation-2024-1689",
     "ai-native-solutions",
     "sovereign"

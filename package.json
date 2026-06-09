@@ -1,7 +1,7 @@
 {
   "name": "fall-euaiact",
-  "version": "1.0.0",
-  "description": "EU AI Act sovereign compliance toolkit · risk classifier · article navigator · audit hookup · transparency badges · Annex IV checklist · single-file HTML · prime 607",
+  "version": "1.1.0",
+  "description": "EU AI Act sovereign compliance toolkit · risk classifier · article navigator · audit hookup · multi-language Annex IV docgen · Article 50 transparency badges · Ed25519 signing · single-file HTML · prime 607",
   "type": "module",
   "private": false,
   "license": "MIT",
@@ -11,5 +11,5 @@
     "type": "git",
     "url": "https://github.com/sjgant80-hub/fall-euaiact.git"
   },
-  "keywords": ["sovereign", "eu-ai-act", "compliance", "ai-regulation", "audit", "transparency", "ai-native-solutions"]
+  "keywords": ["sovereign", "eu-ai-act", "compliance", "ai-regulation", "audit", "transparency", "annex-iv", "ed25519", "ai-native-solutions"]
 }

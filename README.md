@@ -55,6 +55,63 @@ Single-file HTML toolkit for EU AI Act (Regulation 2024/1689) compliance. Paste 
 - PWA manifest via data: URL
 - Mobile-first responsive
 
+## SDK · v1.1 · npm-ready
+
+The standalone SDK lives in `/sdk` — pure ESM, zero hard deps, browser + Node 18+ + Deno + Workers. Lazy-loads libsodium-wasm only when signing is invoked.
+
+```bash
+npm install fall-euaiact
+```
+
+### Risk classifier · article navigator · audit shim · Annex IV docgen
+
+```js
+import {
+  classify, deepClassify, searchArticles, articlesForTier,
+  createAuditShim, createAnnexIV, createTransparencyBadge,
+  generateKeypair, sign, verify,
+  SDK_VERSION,
+} from 'fall-euaiact';
+
+// 1. classify a system in <1ms · pure keyword heuristic
+const r = classify('an AI tool that reviews job applications and ranks candidates');
+// → { tier: 'high', label: 'High risk (Annex III §4)', articles: ['Art 6', 'Art 8', ...], ... }
+
+// 2. one-line audit chain · SHA-256 prevHash · IndexedDB or memory sink
+const audit = createAuditShim({ dbName: 'my-tool-audit', sink: 'indexeddb' });
+await audit.log({ type: 'inference', input: 'CV.pdf', output: 'rank=7', operator: 'sj' });
+const { valid, total } = await audit.verifyChain();
+
+// 3. Annex IV documentation generator · multi-language · multi-format · signed
+const doc = createAnnexIV({
+  '1_general_description': 'My GenAI customer-support assistant',
+  '2_intended_purpose': 'Resolve T1 support tickets autonomously',
+  // ... 12 more fields · see DOC_FIELDS for the full list
+});
+const md   = await doc.export({ format: 'markdown', language: 'en' });
+const html = await doc.export({ format: 'html',     language: 'de' });   // also fr/es/it/nl
+const env  = await doc.export({ format: 'json' });                       // canonical envelope
+const kp = await generateKeypair();
+const signed = await doc.sign(kp.privateKey);
+// → { envelope: {...}, signature: '<hex>' }
+const ok = await verify(JSON.stringify(signed.envelope), signed.signature, kp.publicKey);
+
+// 4. Article 50 transparency disclosure · 5 categories · 6 locales · A11y
+const badge = createTransparencyBadge({
+  category: 'chatbot',          // or generated-text / generated-image / audio / video
+  language: 'en',               // en/de/fr/es/it/nl
+  systemId: 'support-bot-v3',
+  optOutUrl: '/preferences/turn-off-ai',
+});
+badge.mount('#chat-header');                       // browser
+await badge.recordImpression('user-12345');        // optional impression log
+const log = await badge.export({ from: '2026-01-01' });
+const badgeSigned = await badge.sign(kp.privateKey);
+```
+
+### Why factories
+Every Article 11/12/50 surface produces evidence the regulator might one day ask for. The factory objects (`createAnnexIV`, `createAuditShim`, `createTransparencyBadge`) all expose a `.sign()` that produces a Konomi-style Ed25519 envelope — same shape across the SDK, same verification primitive. Build it once · prove it forever.
+
 ## Licence
 
 MIT · Simon Gant 2026
