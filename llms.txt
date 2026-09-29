@@ -20,3 +20,7 @@ A sovereign tool that ships as source, runs offline, and outlasts the vendor. Pa
 ## License
 
 MIT. See https://github.com/sjgant80-hub/fall-euaiact/blob/main/LICENSE.
+
+## The estate compliance kernel
+- comply.mjs + law/law.json: every estate build ships a compliance map (EU AI Act role and risk tier, GDPR / UK GDPR / AI Act duties on its stack, each quoted from the primary text and dated), generated from its compliance.decl.json by tools/comply-build.mjs and checked by konomify on every build.
+- AI Act dates after the Digital Omnibus (Regulation (EU) 2026/1744): Article 5 from 2 February 2025; Article 50 from 2 August 2026 (Article 50(2) marking for systems already on the market: by 2 December 2026); Annex III high-risk from 2 December 2027; Annex I from 2 August 2028.

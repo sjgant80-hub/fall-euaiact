@@ -81,18 +81,23 @@ export function classifyText(text) {
   return { tier: bestTier, label: bestLabel, triggers: tierHits.map((h) => ({ note: h.note, art: h.art })), articles, matched: tierHits.length, confidencePct };
 }
 
-/** The obligation summary for a tier — what you must actually do, and by when. */
+/** The obligation summary for a tier — what you must actually do, and from when it applies. The dates are Art 113
+ *  as amended by the Digital Omnibus on AI (Regulation (EU) 2026/1744, in force 27 July 2026): Article 5 from
+ *  2 February 2025, Article 50 from 2 August 2026, the high-risk regime for Annex III systems from 2 December 2027. */
 export function obligationsFor(tier) {
   if (!TIERS.includes(tier)) return { ok: false, why: 'tier must be one of ' + TIERS.join(', ') };
-  if (tier === 'prohibited') return { ok: true, tier, deadline: null, articles: ['5'], action: 'Do not deploy in the EU. Re-scope the use case or remove the prohibited element; argue an exception only with written legal opinion.' };
-  if (tier === 'high') return { ok: true, tier, deadline: '2026-08-02', articles: ['8-15', '26', 'Annex IV'], action: 'The high-risk regime applies. Read Articles 8-15 and Article 26 (deployer obligations) and complete the Annex IV documentation.' };
-  if (tier === 'limited') return { ok: true, tier, deadline: null, articles: ['50'], action: 'Add the transparency disclosure required by Article 50. Most other obligations do not apply.' };
-  return { ok: true, tier: 'minimal', deadline: null, articles: [], action: 'No specific AI Act obligations beyond voluntary codes. Other EU law (GDPR, product safety, sectoral rules) still applies.' };
+  if (tier === 'prohibited') return { ok: true, tier, deadline: '2025-02-02', articles: ['5'], action: 'Prohibited in the EU since 2 February 2025. Do not deploy: re-scope the use case or remove the prohibited element.' };
+  if (tier === 'high') return { ok: true, tier, deadline: '2027-12-02', articles: ['8-15', '26', 'Annex IV'], action: 'The high-risk regime applies to Annex III systems from 2 December 2027 (Art 113 as amended by Regulation (EU) 2026/1744). Meet Articles 8-15, Article 26 (deployer obligations) and the Annex IV documentation by then.' };
+  if (tier === 'limited') return { ok: true, tier, deadline: '2026-08-02', articles: ['50'], action: 'Article 50 transparency applies from 2 August 2026: tell people they are dealing with an AI system, and mark generated content machine-readably (systems already on the market before then: by 2 December 2026).' };
+  return { ok: true, tier: 'minimal', deadline: null, articles: [], action: 'No specific AI Act obligations beyond AI literacy (Art 4) and voluntary codes. Other EU law (GDPR, product safety, sectoral rules) still applies.' };
 }
 
-/** The compliance deadline for a tier — only the high-risk regime carries a dated one here. */
+/** The date a tier's AI Act obligations apply from (Art 113 as amended by Regulation (EU) 2026/1744). */
 export function deadlineFor(tier) {
-  return tier === 'high' ? '2026-08-02' : null;
+  if (tier === 'prohibited') return '2025-02-02';
+  if (tier === 'high') return '2027-12-02';
+  if (tier === 'limited') return '2026-08-02';
+  return null;
 }
 
 // ── SHA-256 + canonical JSON (the estate's proven pair, verbatim) ───────────────────────────────

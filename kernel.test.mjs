@@ -53,19 +53,23 @@ test('classifyText is total on non-strings (minimal, never a throw)', () => {
 });
 
 test('obligationsFor: each tier carries the right deadline + articles', () => {
-  assert.equal(obligationsFor('prohibited').deadline, null);
+  assert.equal(obligationsFor('prohibited').deadline, '2025-02-02');
   assert.deepEqual(obligationsFor('prohibited').articles, ['5']);
-  assert.equal(obligationsFor('high').deadline, '2026-08-02');
+  assert.equal(obligationsFor('high').deadline, '2027-12-02');   // Art 113 as amended by Reg (EU) 2026/1744
+  assert.equal(obligationsFor('limited').deadline, '2026-08-02');
+  assert.equal(obligationsFor('minimal').deadline, null);
+  assert.match(obligationsFor('high').action, /2 December 2027/);
   assert.ok(obligationsFor('high').articles.includes('26'));
   assert.deepEqual(obligationsFor('limited').articles, ['50']);
   assert.deepEqual(obligationsFor('minimal').articles, []);
   assert.equal(obligationsFor('nonsense').ok, false);
 });
 
-test('deadlineFor: only high-risk carries a dated deadline here', () => {
-  assert.equal(deadlineFor('high'), '2026-08-02');
-  assert.equal(deadlineFor('prohibited'), null);
-  assert.equal(deadlineFor('limited'), null);
+test('deadlineFor: the date each tier applies from, after the Digital Omnibus', () => {
+  assert.equal(deadlineFor('high'), '2027-12-02');
+  assert.equal(deadlineFor('prohibited'), '2025-02-02');
+  assert.equal(deadlineFor('limited'), '2026-08-02');
+  assert.equal(deadlineFor('nonsense'), null);
   assert.equal(deadlineFor('minimal'), null);
 });
 

@@ -12,14 +12,20 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: '22' }
       - name: tests
-        run: node --test kernel.test.mjs
+        run: node --test kernel.test.mjs comply.test.mjs
       - name: mutation gate — kernel.mjs must be CLEAN
         run: |
           node tools/witness.mjs mutate kernel.mjs --timeout 30000 --cap 600 --baseline witness.baseline.json --test node --test kernel.test.mjs | tee gate.out || true
           node -e "const b=require('fs').readFileSync('gate.out','utf8');const j=JSON.parse(b.slice(b.indexOf('{'),b.lastIndexOf('}')+1));if(j.clean!==true){console.error('GATE NOT CLEAN');process.exit(1)}console.log('CLEAN '+j.killed+'/'+j.total)"
+      - name: mutation gate — comply.mjs (the estate compliance kernel) must be CLEAN
+        run: |
+          node tools/witness.mjs mutate comply.mjs --timeout 30000 --cap 600 --test node --test comply.test.mjs | tee comply.out || true
+          node -e "const b=require('fs').readFileSync('comply.out','utf8');const j=JSON.parse(b.slice(b.indexOf('{'),b.lastIndexOf('}')+1));if(j.clean!==true){console.error('COMPLY GATE NOT CLEAN');process.exit(1)}console.log('CLEAN '+j.killed+'/'+j.total)"
+      - name: this repository carries its own current compliance map
+        run: node tools/comply-build.mjs . --check
       - name: page fixpoint — the live classifier IS the gated kernel
         run: |
-          node make-page.mjs
+          node tools/make-page.mjs
           git diff --exit-code index.html
   page:
     runs-on: ubuntu-latest

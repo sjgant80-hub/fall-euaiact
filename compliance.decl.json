@@ -1,0 +1,16 @@
+{
+ "declared": true,
+ "name": "fall-euaiact",
+ "system": "An EU AI Act risk classifier and compliance-map generator in one page. The classifier is deterministic keyword rules that run in the browser; an optional deep-classify button sends the user's system description, with the user's own API key, to the model provider the user chooses.",
+ "ai": "generative",
+ "builtBy": "self",
+ "deployment": "cloud",
+ "providerAbroad": true,
+ "personalData": false,
+ "euOutput": true,
+ "interactsWithPublic": false,
+ "generatesContent": true,
+ "significantDecision": false,
+ "annexIII": null,
+ "prohibited": null
+}
