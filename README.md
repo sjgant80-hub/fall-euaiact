@@ -1,6 +1,6 @@
 # fall-euaiact
 
-sovereign single-file browser tool · MIT · @ai-native-solutions
+EU AI Act risk classifier and the estate's compliance kernel · MIT · @ai-native-solutions
 
 - Live: https://sjgant80-hub.github.io/fall-euaiact/
 - Registry: https://sjgant80-hub.github.io/fallmarket/listing.html?id=fall-euaiact
