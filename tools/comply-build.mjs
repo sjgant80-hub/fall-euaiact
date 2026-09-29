@@ -18,6 +18,8 @@ export const LAW_URL = 'https://github.com/sjgant80-hub/fall-euaiact/blob/main/l
 export const MAX_AGE_DAYS = 180;
 const readJson = (p) => JSON.parse(readFileSync(p, 'utf8').replace(/^﻿/, ''));
 const today = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };   // the local calendar date
+// the latest calendar date anywhere on Earth (UTC+14): a map written today in any time zone is never 'in the future'
+const latest = () => new Date(Date.now() + 14 * 3600000).toISOString().slice(0, 10);
 const days = (a, b) => Math.round((Date.parse(b + 'T00:00:00Z') - Date.parse(a + 'T00:00:00Z')) / 86400000);
 const esc = (t) => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
@@ -98,7 +100,7 @@ export function write(repo, asOf = today()) {
 }
 
 /** check(repo, today) — is the build's map present, generated (not hand-edited), current and shippable? */
-export function check(repo, now = today()) {
+export function check(repo, now = latest()) {
   const law = loadLaw();
   const problems = [];
   const jp = join(repo, 'compliance.json'), hp = join(repo, 'compliance.html');
