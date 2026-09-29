@@ -889,7 +889,7 @@ const COMPLY_LAW = {"_rule":"The verified law every estate build's compliance ma
     h += '<div class="conf">' + escC(m.aiAct.applies ? 'Role: ' + m.aiAct.role : m.aiAct.why) + '</div>';
     h += '<div class="why">' + escC(m.gdpr.why) + ' ' + m.applying + ' duties apply on this stack, ' + m.inForce + ' in force' + (m.upcoming.length ? '; upcoming: ' + m.upcoming.map((u) => u.id + ' from ' + u.from).join(', ') : '') + '.</div>';
     if (m.blocking.length) h += '<h4>Blocks shipping</h4><p>' + m.blocking.map(escC).join(' ') + '</p>';
-    if (m.items.length) h += '<h4>Duties</h4>' + m.items.map((i) => '<p><b>' + escC(i.title) + '</b> · <span class="trig">' + escC(i.regime + ' ' + i.ref) + '</span> · ' + escC(STATUS_WORDS[i.status]) + ' · ' + (i.inForce ? 'in force' : 'from ' + escC(i.from)) + (i.note ? '<br><span style="opacity:.8">' + escC(i.note) + '</span>' : '') + ' <a href="' + escC(i.url) + '">text</a></p>').join('');
+    if (m.items.length) h += '<h4>Duties</h4>' + m.items.map((i) => '<p><b>' + escC(i.title) + '</b> · <span class="trig">' + escC(i.regime + ' ' + i.ref) + '</span> · ' + escC(STATUS_WORDS[i.status]) + ' · ' + (i.inForce ? 'in force' : 'from ' + escC(i.from)) + (i.note ? '<br><span style="opacity:.8">' + escC(i.note) + '</span>' : '') + ' <a href=\x22' + escC(i.url) + '\x22>text</a></p>').join('');
     h += '<p style="opacity:.8;font-size:.85rem;margin-top:10px">Law checked ' + escC(COMPLY_LAW.checked) + ' against EUR-Lex and legislation.gov.uk · map as of ' + escC(m.asOf) + '.</p>';
     out.innerHTML = h;
   }
