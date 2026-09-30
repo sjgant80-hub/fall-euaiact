@@ -6,7 +6,7 @@
   "proof": {
     "benchmark": "assessor-v0.10",
     "core": "10/10",
-    "hash": "79cc4fd943313d60083b36bc9215b0e1"
+    "hash": "977ef5451c779bbbd6f066b54465262e"
   },
   "behaviour": {
     "gate": "witness",
@@ -14,5 +14,17 @@
     "score": 0.968,
     "source": "comply.mjs, kernel.mjs",
     "skipped": false
+  },
+  "basis": {
+    "compliance": {
+      "aiAct": "limited",
+      "gdpr": false,
+      "duties": 5,
+      "asOf": "2026-09-30"
+    },
+    "prices": {
+      "locked": 0,
+      "priced": 0
+    }
   }
 }
