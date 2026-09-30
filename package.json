@@ -1,7 +1,7 @@
 {
   "name": "fall-euaiact",
   "version": "1.1.0",
-  "description": "EU AI Act risk classifier and the estate's compliance kernel: every build's AI Act role, risk tier and GDPR / UK GDPR duties, generated from its declaration and the verified law",
+  "description": "EU AI Act risk classifier and the estate's compliance kernel · MIT · @ai-native-solutions",
   "type": "module",
   "private": false,
   "license": "MIT",
