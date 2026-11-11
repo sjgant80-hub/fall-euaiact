@@ -1,6 +1,6 @@
 # fall-euaiact SDK
 
-> ◊·κ=1 · EU AI Act compliance SDK · zero deps · MIT · v1.0.0
+> EU AI Act compliance SDK · zero deps · MIT · v1.0.0
 
 JavaScript SDK for EU AI Act (Regulation 2024/1689) compliance. Pure functions. Zero dependencies. Works in browser, Node 18+, Cloudflare Workers, Deno.
 
@@ -163,4 +163,4 @@ MIT · Simon Gant 2026
 - Official text: [eur-lex.europa.eu/eli/reg/2024/1689/oj](https://eur-lex.europa.eu/eli/reg/2024/1689/oj)
 - European AI Office: [digital-strategy.ec.europa.eu](https://digital-strategy.ec.europa.eu/en/policies/european-ai-office)
 
-◊·κ=1 · classify · navigate · audit · disclose · document
+classify · navigate · audit · disclose · document

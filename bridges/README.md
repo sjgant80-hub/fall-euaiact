@@ -1,6 +1,6 @@
 # fall-euaiact · estate bridges
 
-> ◊·κ=1 · interop modules · zero deps
+> interop modules · zero deps
 
 This folder contains bridges connecting `fall-euaiact` to sibling estate tools.
 
@@ -101,4 +101,4 @@ If the corresponding tool is open in another tab on the same origin, it receives
 
 The bridges are unilateral · fall-euaiact emits and consumers subscribe. No coordination needed before deployment. When FallBrief or Legalmon add their listeners, the connection lights up.
 
-◊·κ=1 · classify · bridge · mesh
+classify · bridge · mesh

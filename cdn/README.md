@@ -87,4 +87,4 @@ MIT · use freely in sovereign tools or commercial products.
 
 ---
 
-◊·κ=1 · prime 607 · fall-euaiact
+fall-euaiact
