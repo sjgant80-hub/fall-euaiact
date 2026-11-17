@@ -1,4 +1,5 @@
-// ◊·κ=1 · EU AI Act article navigator · data + helpers · zero deps
+// EU AI Act article navigator · data + helpers · zero deps
+// Dates: Regulation (EU) 2024/1689 as amended by Regulation (EU) 2026/1744 (the Digital Omnibus on AI, in force 27 July 2026).
 
 export const ARTICLES = [
   {
@@ -12,63 +13,72 @@ export const ARTICLES = [
   {
     id: '6',
     title: 'Article 6 + Annex III · High-risk classification',
-    enforceFrom: '2026-08-02',
+    enforceFrom: '2027-12-02', // stand-alone (Annex III) systems; moved from 2 August 2026 by Regulation (EU) 2026/1744
+    enforceFromAnnexI: '2028-08-02', // AI in products covered by Annex I
     tags: ['high-risk', 'classification', 'annex-iii'],
     summary: 'High-risk if in one of 8 Annex III categories: biometrics · critical infrastructure · education · employment (CV screening, performance eval) · essential services (credit, insurance, emergency) · law enforcement · migration · justice/democracy. Article 6(3) carveouts exist for narrow procedural tasks or preparatory work.',
   },
   {
     id: '9',
     title: 'Article 9 · Risk management system',
-    enforceFrom: '2026-08-02',
+    enforceFrom: '2027-12-02', // stand-alone (Annex III) systems; moved from 2 August 2026 by Regulation (EU) 2026/1744
+    enforceFromAnnexI: '2028-08-02', // AI in products covered by Annex I
     tags: ['risk-management', 'high-risk', 'lifecycle'],
     summary: 'Establish, implement, document, maintain a risk management system across the entire system lifecycle. Identify foreseeable risks, estimate emergence in intended use AND foreseeable misuse, adopt mitigations, test against established metrics.',
   },
   {
     id: '10',
     title: 'Article 10 · Data and data governance',
-    enforceFrom: '2026-08-02',
+    enforceFrom: '2027-12-02', // stand-alone (Annex III) systems; moved from 2 August 2026 by Regulation (EU) 2026/1744
+    enforceFromAnnexI: '2028-08-02', // AI in products covered by Annex I
     tags: ['data', 'governance', 'bias', 'training'],
     summary: 'Training/validation/testing datasets must be relevant, representative, complete, free of errors. Statistical properties appropriate for purpose. Examine for biases affecting health/safety/fundamental rights or leading to discrimination. Document collection, origin, annotation, curation.',
   },
   {
     id: '11',
     title: 'Article 11 + Annex IV · Technical documentation',
-    enforceFrom: '2026-08-02',
+    enforceFrom: '2027-12-02', // stand-alone (Annex III) systems; moved from 2 August 2026 by Regulation (EU) 2026/1744
+    enforceFromAnnexI: '2028-08-02', // AI in products covered by Annex I
     tags: ['documentation', 'annex-iv', 'conformity'],
     summary: 'Before placing on market, compile technical documentation per Annex IV: general description · system elements (data, algorithms, architecture) · monitoring/control · risk management · lifecycle changes · harmonised standards · EU declaration of conformity · post-market performance assessment.',
   },
   {
     id: '12',
     title: 'Article 12 · Automatic record-keeping (audit logs)',
-    enforceFrom: '2026-08-02',
+    enforceFrom: '2027-12-02', // stand-alone (Annex III) systems; moved from 2 August 2026 by Regulation (EU) 2026/1744
+    enforceFromAnnexI: '2028-08-02', // AI in products covered by Annex I
     tags: ['logs', 'audit', 'traceability', 'high-risk'],
     summary: 'High-risk systems must automatically log events over lifetime. Logs enable: risk identification · modification tracking · post-market monitoring · bias detection. Required content: use period · reference database · input data triggering matches · identification of verifiers.',
   },
   {
     id: '13',
     title: 'Article 13 · Transparency to deployers',
-    enforceFrom: '2026-08-02',
+    enforceFrom: '2027-12-02', // stand-alone (Annex III) systems; moved from 2 August 2026 by Regulation (EU) 2026/1744
+    enforceFromAnnexI: '2028-08-02', // AI in products covered by Annex I
     tags: ['transparency', 'deployer', 'instructions'],
     summary: 'System comes with instructions including: provider identity · intended purpose · accuracy/robustness/cybersecurity levels · performance per groups · risks · human oversight measures · expected lifetime · maintenance · log access.',
   },
   {
     id: '14',
     title: 'Article 14 · Human oversight',
-    enforceFrom: '2026-08-02',
+    enforceFrom: '2027-12-02', // stand-alone (Annex III) systems; moved from 2 August 2026 by Regulation (EU) 2026/1744
+    enforceFromAnnexI: '2028-08-02', // AI in products covered by Annex I
     tags: ['human-oversight', 'pause', 'override', 'high-risk'],
     summary: 'High-risk systems designed for effective human oversight. Persons must: understand capacities and limitations · be aware of automation bias · correctly interpret output · decide NOT to use the output or override/reverse it · intervene or interrupt the system.',
   },
   {
     id: '15',
     title: 'Article 15 · Accuracy, robustness and cybersecurity',
-    enforceFrom: '2026-08-02',
+    enforceFrom: '2027-12-02', // stand-alone (Annex III) systems; moved from 2 August 2026 by Regulation (EU) 2026/1744
+    enforceFromAnnexI: '2028-08-02', // AI in products covered by Annex I
     tags: ['accuracy', 'robustness', 'cybersecurity', 'high-risk'],
     summary: 'Achieve appropriate accuracy (declared in instructions) · robustness against errors and inconsistencies (redundancy, backup, fail-safe) · cybersecurity resilient against attempts to alter use/outputs/performance · including data-poisoning and adversarial examples.',
   },
   {
     id: '26',
     title: 'Article 26 · Deployer obligations',
-    enforceFrom: '2026-08-02',
+    enforceFrom: '2027-12-02', // stand-alone (Annex III) systems; moved from 2 August 2026 by Regulation (EU) 2026/1744
+    enforceFromAnnexI: '2028-08-02', // AI in products covered by Annex I
     tags: ['deployer', 'workplace', 'logs', 'monitoring'],
     summary: 'Deployer must: use per instructions · assign human oversight to competent persons · monitor operation · keep logs ≥ 6 months · inform affected persons that they are subject to high-risk AI · for workplace use, inform workers reps + workers BEFORE deployment.',
   },
@@ -107,9 +117,12 @@ export const PENALTIES = [
 
 export const DEADLINES = [
   { date: '2025-02-02', what: 'Prohibited AI practices banned (Article 5 enforceable)' },
-  { date: '2025-08-02', what: 'GPAI rules for new foundation models' },
-  { date: '2026-08-02', what: 'High-risk obligations for standalone Annex III systems' },
-  { date: '2027-08-02', what: 'Safety-component high-risk + GPAI legacy models' },
+  { date: '2025-08-02', what: 'GPAI rules for new general-purpose models' },
+  { date: '2026-08-02', what: 'General date of application, including Article 50 transparency' },
+  { date: '2026-12-02', what: 'Article 50(2) marking for generative systems already on the market; the new Article 5 prohibitions (non-consensual intimate imagery, child sexual abuse material)' },
+  { date: '2027-08-02', what: 'GPAI models placed on the market before 2 August 2025' },
+  { date: '2027-12-02', what: 'High-risk obligations for stand-alone (Annex III) systems (moved from 2 August 2026)' },
+  { date: '2028-08-02', what: 'High-risk obligations for AI in products covered by Annex I (moved from 2 August 2027)' },
 ];
 
 /**
