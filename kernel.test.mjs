@@ -28,6 +28,29 @@ test('the five shipped samples classify to their known tiers + articles', () => 
   assert.equal(spam.tier, 'minimal'); assert.equal(spam.matched, 0);
 });
 
+test('Article 5(1)(f): inferring emotions at work or in education is prohibited, however it is phrased', () => {
+  for (const t of ['emotion recognition at work', 'emotion detection for call centre staff', 'an emotion analysis tool for classroom pupils',
+    'monitors worker emotion recognition scores during shifts', 'emotion recognition in the workplace']) {
+    const r = classifyText(t);
+    assert.equal(r.tier, 'prohibited', t); assert.ok(r.articles.includes('5(1)(f)'), t);
+  }
+  // outside work and education it stays an Article 50 transparency duty
+  const shop = classifyText('emotion recognition on shoppers in a retail store');
+  assert.equal(shop.tier, 'limited'); assert.ok(shop.articles.includes('50(3)'));
+});
+
+test('Article 5(1)(h): live facial recognition in public for police is prohibited, other face uses are not', () => {
+  for (const t of ['facial recognition in public spaces for police', 'live facial recognition vans used by police',
+    'police use face recognition on crowds at a stadium', 'real-time facial recognition in a public square']) {
+    const r = classifyText(t);
+    assert.equal(r.tier, 'prohibited', t); assert.ok(r.articles.includes('5(1)(h)'), t);
+    assert.match(r.triggers.find((x) => x.art === '5(1)(h)').note, /retrospective identification is high-risk/);
+  }
+  assert.notEqual(classifyText('facial recognition to unlock my own phone').tier, 'prohibited');
+  assert.notEqual(classifyText('a police records database with no AI').tier, 'prohibited');
+  assert.equal(classifyText('fingerprint match for building access').tier, 'high');
+});
+
 test('kill: priority order — a prohibited use is never softened to high', () => {
   // trips BOTH a prohibited trigger (social scoring) AND a high trigger (CV screening reject)
   const both = classifyText('A social scoring system for citizens that also screens CVs and rejects the bottom half.');
