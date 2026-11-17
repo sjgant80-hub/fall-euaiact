@@ -94,7 +94,8 @@ export function createAuditShim(opts = {}) {
       if (entry.prev_hash !== expected) {
         return { valid: false, broken_at: i, total: all.length };
       }
-      const { hash, ...rest } = entry;
+      // IndexedDB writes its generated key into the stored record (keyPath 'id'); the hash was taken before that
+      const { hash, id, ...rest } = entry;
       const computed = await sha256(JSON.stringify(rest));
       if (computed !== hash) {
         return { valid: false, broken_at: i, total: all.length };

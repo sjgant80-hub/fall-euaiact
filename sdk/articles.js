@@ -131,7 +131,7 @@ export const DEADLINES = [
  * @returns {Article[]}
  */
 export function searchArticles(query) {
-  if (!query) return ARTICLES.slice();
+  if (typeof query !== 'string' || !query) return ARTICLES.slice();
   const q = query.toLowerCase();
   return ARTICLES.filter(a => {
     if (a.title.toLowerCase().includes(q)) return true;

@@ -56,7 +56,6 @@ export async function sign(message, privateKeyHex) {
  * @returns {Promise<boolean>} true only if the signature is valid for this message and key; never throws
  */
 export async function verify(message, signatureHex, publicKeyHex) {
-  if (!signatureHex || !publicKeyHex) return false;
   try {
     const s = await subtle();
     const key = await s.importKey('raw', fromHex(publicKeyHex), ALG, false, ['verify']);
