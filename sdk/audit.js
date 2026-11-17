@@ -1,4 +1,4 @@
-// ◊·κ=1 · Article 12 audit shim · SHA-256 prevHash chain · works in browser AND Node 18+
+// fall-euaiact · Article 12 audit shim · SHA-256 prevHash chain · works in browser AND Node 18+
 
 /**
  * Create an audit logger that satisfies Article 12 record-keeping requirements.

@@ -1,5 +1,5 @@
-// ◊·κ=1 · fall-euaiact · Article 50 transparency disclosure component · v1.1
-// MIT · zero hard deps · libsodium lazy-loaded only when sign() is called
+// fall-euaiact · Article 50 transparency disclosure component · v1.1
+// MIT · zero dependencies · signing uses the platform WebCrypto (sign.js), nothing is fetched at runtime
 
 /**
  * Article 50 of the EU AI Act requires AI systems that interact with humans
@@ -143,7 +143,7 @@ background:${esc(style.bg)};color:${esc(style.fg)};
 font:${compact ? '11px' : '12.5px'}/1.4 -apple-system,system-ui,sans-serif;
 padding:${compact ? '3px 9px' : '6px 12px'};border-radius:14px;
 border:1px solid ${esc(style.accent)};letter-spacing:.2px">
-<span aria-hidden="true" style="color:${esc(style.accent)};font-weight:700">◊</span>
+<span aria-hidden="true" style="color:${esc(style.accent)};font-weight:700">AI</span>
 <span>${esc(label)}${optOutHtml}</span>
 </div>`;
     },

@@ -1,5 +1,10 @@
-// ◊·κ=1 · EU AI Act risk classifier · pure functions · zero deps
+// fall-euaiact · EU AI Act risk classifier · pure functions · zero deps
 // works in browser, Node 18+, Cloudflare Workers, Deno
+//
+// classify() is a thin adapter over kernel.js, the deterministic classifier the live page runs and the mutation
+// gate proves (kernel.js is a byte copy of the repo's kernel.mjs; CI refuses any difference). There is one rule table.
+
+import { classifyText } from './kernel.js';
 
 export const TIERS = {
   PROHIBITED: 'prohibited',
@@ -7,43 +12,6 @@ export const TIERS = {
   LIMITED: 'limited',
   MINIMAL: 'minimal',
 };
-
-const RULES = [
-  { tier: 'prohibited', label: 'PROHIBITED · Article 5',
-    triggers: [
-      { re: /social scor|citizen scor|trust score.*citizen/i, art: '5(1)(c)', note: 'social scoring by public authorities' },
-      { re: /predictive polic|assess.*risk.*committ.*crim/i, art: '5(1)(d)', note: 'predictive policing on individuals' },
-      { re: /scrap.*facial|facial.*scrap.*CCTV/i, art: '5(1)(e)', note: 'untargeted scraping for facial recognition' },
-      { re: /emotion recognition.*workplace|emotion.*employee|emotion.*school/i, art: '5(1)(f)', note: 'emotion recognition in workplace/education' },
-      { re: /biometric categor.*(?:race|religion|political|sexual)/i, art: '5(1)(g)', note: 'biometric categorisation by sensitive attributes' },
-      { re: /real.?time.*biometric.*public|real.?time.*facial.*recogn.*public/i, art: '5(1)(h)', note: 'real-time remote biometric ID in public for LE' },
-      { re: /subliminal|manipulat.*behaviour.*harm/i, art: '5(1)(a)', note: 'subliminal/manipulative techniques causing harm' },
-      { re: /exploit.*vulnerab.*(?:age|disability|economic)/i, art: '5(1)(b)', note: 'exploitation of vulnerabilities' },
-    ] },
-  { tier: 'high', label: 'HIGH RISK · Annex III · Articles 6-15',
-    triggers: [
-      { re: /\b(cv|c\.v\.|resume|résumé)s?\b.{0,30}(screen|scor|rank|filter|reject)|screen.{0,30}\b(cv|c\.v\.|resume|résumé)s?\b|hire.*decision|hir.*algorithm|recruit.*(automat|agency|agent)|applicant.*scor/i, art: 'Annex III(4)', note: 'employment · CV screening · hiring' },
-      { re: /performance evaluat|worker.*manag|task allocat.*algorithm|monitor.*employee/i, art: 'Annex III(4)', note: 'workplace performance evaluation' },
-      { re: /credit.{0,20}(scoring|decision|approval|application|review|risk)|scor.{0,20}credit|loan.*decision|underwrit/i, art: 'Annex III(5)', note: 'access to essential financial services' },
-      { re: /insurance.*pric|health.*insurance.*risk/i, art: 'Annex III(5)', note: 'insurance underwriting · health/life' },
-      { re: /emergency.*dispatch|triage.*emerg/i, art: 'Annex III(5)', note: 'emergency service dispatch' },
-      { re: /public benefit.*eligib|welfare.*decis|social.*assistance.*decis/i, art: 'Annex III(5)', note: 'eligibility for public benefits' },
-      { re: /student.*admiss|exam.*scor.*automat|cheating detect.*exam/i, art: 'Annex III(3)', note: 'education · admissions/scoring/cheating' },
-      { re: /critical infrastruct|grid.*manag|water.*manag.*AI|gas.*pipeline.*AI/i, art: 'Annex III(2)', note: 'critical infrastructure management' },
-      { re: /law enforcement.*evid|criminal.*profil|crime.*analyt|polic.*risk.*assess/i, art: 'Annex III(6)', note: 'law enforcement (non-prohibited categories)' },
-      { re: /migrat.*assess|asylum.*decis|border.*control.*AI|visa.*decis.*algorithm/i, art: 'Annex III(7)', note: 'migration / asylum / border control' },
-      { re: /judicial.*decis|court.*ruling.*assist|democratic.*process.*influence/i, art: 'Annex III(8)', note: 'administration of justice / democracy' },
-      { re: /biometric.*identif(?!.*public)|fingerprint.*match|face.*verif|voice.*identif/i, art: 'Annex III(1)', note: 'biometric identification (non-prohibited)' },
-    ] },
-  { tier: 'limited', label: 'LIMITED RISK · Article 50 transparency',
-    triggers: [
-      { re: /chatbot|customer support.*AI|conversation.*assistant|virtual.*agent/i, art: '50(1)', note: 'chatbot · disclose AI to user' },
-      { re: /deepfake|synthetic.*video|generated.*image|AI.*generated.*content|content.*manipulat/i, art: '50(4)', note: 'deepfake / AI-generated content disclosure' },
-      { re: /emotion recognition(?!.*workplace)/i, art: '50(3)', note: 'emotion recognition (outside workplace) disclosure' },
-      { re: /biometric categor/i, art: '50(3)', note: 'biometric categorisation disclosure' },
-      { re: /AI.*generated.*text.*(?:news|public|article)/i, art: '50(4)', note: 'AI-generated public interest text disclosure' },
-    ] },
-];
 
 /**
  * T0 keyword classifier · runs offline · no LLM required
@@ -54,28 +22,13 @@ export function classify(description) {
   if (!description || typeof description !== 'string') {
     throw new TypeError('description must be a non-empty string');
   }
-  const hits = [];
-  let bestTier = 'minimal', bestLabel = 'MINIMAL RISK · default tier';
-  for (const tier of RULES) {
-    for (const trig of tier.triggers) {
-      if (trig.re.test(description)) hits.push({ tier: tier.tier, label: tier.label, ...trig });
-    }
-    if (hits.some(h => h.tier === tier.tier)) {
-      bestTier = tier.tier; bestLabel = tier.label;
-      break;
-    }
-  }
-  const tierHits = hits.filter(h => h.tier === bestTier);
-  const articles = [...new Set(tierHits.map(h => h.art))];
-  const confidence = tierHits.length === 0 ? 0 :
-                     tierHits.length === 1 ? 50 :
-                     Math.min(95, 40 + tierHits.length * 20);
+  const r = classifyText(description);
   return {
-    tier: bestTier,
-    label: bestLabel,
-    triggers: tierHits.map(h => ({ note: h.note, article: h.art })),
-    articles,
-    confidence,
+    tier: r.tier,
+    label: r.label,
+    triggers: r.triggers.map((h) => ({ note: h.note, article: h.art })),
+    articles: r.articles,
+    confidence: r.confidencePct,
   };
 }
 
@@ -122,7 +75,7 @@ export async function deepClassify(description, opts) {
         'anthropic-dangerous-direct-browser-access': 'true',
       },
       body: JSON.stringify({
-        model: opts.model || 'claude-3-5-sonnet-20241022',
+        model: opts.model || 'claude-opus-5-5',
         max_tokens: 800,
         messages: [{ role: 'user', content: DEEP_PROMPT + '\n\nSystem description:\n' + description }],
       }),

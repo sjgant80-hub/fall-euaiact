@@ -1,4 +1,4 @@
-// ◊·κ=1 · Annex IV documentation generator · pure functions · zero deps · v1.1
+// fall-euaiact · Annex IV documentation generator · pure functions · zero deps · v1.1
 
 export const DOC_FIELDS = [
   { id: 'system_name', q: 'System name & version', placeholder: 'e.g. FallVet CV Scorer v2.3', art: 'Annex IV(1)(a)' },

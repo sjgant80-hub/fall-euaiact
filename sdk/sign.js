@@ -1,73 +1,66 @@
-// ◊·κ=1 · fall-euaiact · Ed25519 signing helper · libsodium-wasm via dynamic import
-// MIT · zero hard deps · libsodium lazy-loaded only when sign() is called
+// fall-euaiact · Ed25519 signing helper · MIT · zero dependencies
+// Uses the platform's own WebCrypto Ed25519 (Node 20+, Deno, Cloudflare Workers, current Chrome, Firefox and
+// Safari). Nothing is fetched at runtime: an earlier version loaded libsodium from a CDN on first use.
+// Keys are hex. A private key may be the 32-byte seed or libsodium's 64-byte secret key (seed followed by the
+// public key), so keys made by the earlier version still work. Signatures are standard Ed25519 (RFC 8032).
 
-let _sodiumPromise = null;
+const PKCS8_PREFIX = '302e020100300506032b657004220420'; // the fixed DER header that wraps a 32-byte Ed25519 seed
+const ALG = { name: 'Ed25519' };
 
-/**
- * Lazy-load libsodium-wrappers from esm.run. Re-uses the same promise across calls.
- * @internal
- */
-async function getSodium() {
-  if (!_sodiumPromise) {
-    _sodiumPromise = (async () => {
-      const mod = await import('https://esm.run/libsodium-wrappers@0.7.13');
-      const sodium = mod.default || mod;
-      await sodium.ready;
-      return sodium;
-    })();
-  }
-  return _sodiumPromise;
+async function subtle() {
+  if (globalThis.crypto && globalThis.crypto.subtle) return globalThis.crypto.subtle;
+  return (await import('node:crypto')).webcrypto.subtle;
 }
 
+const toHex = (buf) => Array.from(new Uint8Array(buf), (b) => b.toString(16).padStart(2, '0')).join('');
+
+function fromHex(hex) {
+  if (typeof hex !== 'string' || hex.length % 2 !== 0 || !/^[0-9a-fA-F]*$/.test(hex)) throw new TypeError('not a hex string');
+  const out = new Uint8Array(hex.length / 2);
+  for (let i = 0; i < out.length; i++) out[i] = parseInt(hex.slice(i * 2, i * 2 + 2), 16);
+  return out;
+}
+
+const bytesOf = (message) => (typeof message === 'string' ? new TextEncoder().encode(message) : message);
+
 /**
- * Generate a fresh Ed25519 keypair · for callers that don't already have one.
- * The Konomi master key (per the estate doctrine) is generated once and stored
- * in IndexedDB by the consumer tool. This helper is for one-off testing or
- * for callers building their own identity layer.
- *
- * @returns {Promise<{ publicKey: string, privateKey: string }>} hex-encoded keypair
+ * Generate a fresh Ed25519 keypair.
+ * @returns {Promise<{ publicKey: string, privateKey: string }>} hex; privateKey is 64 bytes (seed + public key), as libsodium makes it
  */
 export async function generateKeypair() {
-  const s = await getSodium();
-  const kp = s.crypto_sign_keypair();
-  return {
-    publicKey: s.to_hex(kp.publicKey),
-    privateKey: s.to_hex(kp.privateKey),
-  };
+  const s = await subtle();
+  const kp = await s.generateKey(ALG, true, ['sign', 'verify']);
+  const pkcs8 = toHex(await s.exportKey('pkcs8', kp.privateKey));
+  const publicKey = toHex(await s.exportKey('raw', kp.publicKey));
+  return { publicKey, privateKey: pkcs8.slice(PKCS8_PREFIX.length) + publicKey };
 }
 
 /**
  * Sign a message with an Ed25519 private key.
- *
- * @param {string} message - the message to sign (UTF-8 string · usually JSON-stringified envelope)
- * @param {string} privateKeyHex - hex-encoded Ed25519 private key (64-byte / 128 hex chars)
- * @returns {Promise<string>} hex-encoded detached signature
+ * @param {string|Uint8Array} message - usually a JSON-stringified envelope
+ * @param {string} privateKeyHex - 32-byte seed or 64-byte secret key, hex
+ * @returns {Promise<string>} hex-encoded detached signature (64 bytes)
  */
 export async function sign(message, privateKeyHex) {
   if (!privateKeyHex) throw new Error('sign() requires a privateKeyHex');
-  const s = await getSodium();
-  const msgBytes = typeof message === 'string' ? s.from_string(message) : message;
-  const skBytes = s.from_hex(privateKeyHex);
-  const sigBytes = s.crypto_sign_detached(msgBytes, skBytes);
-  return s.to_hex(sigBytes);
+  if (privateKeyHex.length !== 64 && privateKeyHex.length !== 128) throw new TypeError('privateKeyHex must be 32 or 64 bytes of hex');
+  const seed = privateKeyHex.slice(0, 64);
+  fromHex(privateKeyHex); // the whole key must be hex, not just the seed half
+  const s = await subtle();
+  const key = await s.importKey('pkcs8', fromHex(PKCS8_PREFIX + seed), ALG, false, ['sign']);
+  return toHex(await s.sign(ALG, key, bytesOf(message)));
 }
 
 /**
- * Verify an Ed25519 detached signature against a message + public key.
- *
- * @param {string} message - the original message
- * @param {string} signatureHex - hex-encoded signature
- * @param {string} publicKeyHex - hex-encoded public key
- * @returns {Promise<boolean>} true if signature is valid for this (message, key) pair
+ * Verify an Ed25519 detached signature against a message and public key.
+ * @returns {Promise<boolean>} true only if the signature is valid for this message and key; never throws
  */
 export async function verify(message, signatureHex, publicKeyHex) {
   if (!signatureHex || !publicKeyHex) return false;
-  const s = await getSodium();
   try {
-    const msgBytes = typeof message === 'string' ? s.from_string(message) : message;
-    const sigBytes = s.from_hex(signatureHex);
-    const pkBytes = s.from_hex(publicKeyHex);
-    return s.crypto_sign_verify_detached(sigBytes, msgBytes, pkBytes);
+    const s = await subtle();
+    const key = await s.importKey('raw', fromHex(publicKeyHex), ALG, false, ['verify']);
+    return await s.verify(ALG, key, fromHex(signatureHex), bytesOf(message));
   } catch (_) {
     return false;
   }

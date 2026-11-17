@@ -1,19 +1,21 @@
 # fall-euaiact SDK
 
-> EU AI Act compliance SDK · zero deps · MIT · v1.0.0
+> EU AI Act compliance SDK · zero deps · MIT · v1.2.0
 
 JavaScript SDK for EU AI Act (Regulation 2024/1689) compliance. Pure functions. Zero dependencies. Works in browser, Node 18+, Cloudflare Workers, Deno.
 
 ```bash
-npm install fall-euaiact
+npm install github:sjgant80-hub/fall-euaiact-sdk
 ```
+
+It is not on the npm registry: it installs straight from the [fall-euaiact-sdk](https://github.com/sjgant80-hub/fall-euaiact-sdk) repository, which carries this folder. Live page with the API reference and a try-it panel: https://sjgant80-hub.github.io/fall-euaiact-sdk/
 
 ## Quick start
 
 ### Classify a system
 
 ```js
-import { classify } from 'fall-euaiact';
+import { classify } from '@ai-native-solutions/fall-euaiact-sdk';
 
 const result = classify('An AI system that screens CVs for a recruitment agency.');
 // {
@@ -28,7 +30,7 @@ const result = classify('An AI system that screens CVs for a recruitment agency.
 ### Deep classify via LLM (BYOK)
 
 ```js
-import { deepClassify } from 'fall-euaiact';
+import { deepClassify } from '@ai-native-solutions/fall-euaiact-sdk';
 
 const result = await deepClassify(systemDescription, {
   provider: 'anthropic', // or 'openai' or 'google'
@@ -47,7 +49,7 @@ const result = await deepClassify(systemDescription, {
 ### Navigate the Act
 
 ```js
-import { searchArticles, getArticle, articlesForTier, ARTICLES, DEADLINES, PENALTIES } from 'fall-euaiact';
+import { searchArticles, getArticle, articlesForTier, ARTICLES, DEADLINES, PENALTIES } from '@ai-native-solutions/fall-euaiact-sdk';
 
 searchArticles('hiring');                  // → [Article 5, Annex III, etc. matches]
 getArticle('14');                          // → Article 14 (Human oversight)
@@ -60,7 +62,7 @@ PENALTIES;                                 // → max fines per breach
 ### Article 12 audit shim (cryptographic log chain)
 
 ```js
-import { createAuditShim } from 'fall-euaiact';
+import { createAuditShim } from '@ai-native-solutions/fall-euaiact-sdk';
 
 const audit = createAuditShim({ dbName: 'my-app-audit', sink: 'indexeddb' });
 // or sink: 'memory' for Node / Workers
@@ -82,7 +84,7 @@ const { valid, total } = await audit.verifyChain();
 ### Generate Annex IV documentation
 
 ```js
-import { generateAnnexIV, getDocFields, validateValues } from 'fall-euaiact';
+import { generateAnnexIV, getDocFields, validateValues } from '@ai-native-solutions/fall-euaiact-sdk';
 
 const values = {
   system_name: 'FallVet CV Scorer v2.3',
@@ -127,10 +129,10 @@ Full OpenAPI 3.1 spec in `openapi.yaml`.
 Tree-shake friendly · import only what you need:
 
 ```js
-import { classify } from 'fall-euaiact/classifier';
-import { ARTICLES } from 'fall-euaiact/articles';
-import { createAuditShim } from 'fall-euaiact/audit';
-import { generateAnnexIV } from 'fall-euaiact/docgen';
+import { classify } from '@ai-native-solutions/fall-euaiact-sdk/classifier';
+import { ARTICLES } from '@ai-native-solutions/fall-euaiact-sdk/articles';
+import { createAuditShim } from '@ai-native-solutions/fall-euaiact-sdk/audit';
+import { generateAnnexIV } from '@ai-native-solutions/fall-euaiact-sdk/docgen';
 ```
 
 ## TypeScript
@@ -152,7 +154,7 @@ Types included (`index.d.ts`). Full type coverage for all exports.
 
 ## The interactive demo
 
-Same SDK powers https://sjgant80-hub.github.io/fall-euaiact/ — open it in a browser to see everything in action.
+The live page at https://sjgant80-hub.github.io/fall-euaiact/ runs the same classifier: `kernel.js` here is a byte copy of the page's gated `kernel.mjs` (the build fails on any difference), and `classify()` is a thin adapter over it. Signing uses the platform's WebCrypto Ed25519; nothing is fetched at runtime.
 
 ## Licence
 

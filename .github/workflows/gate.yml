@@ -27,6 +27,8 @@ jobs:
         run: |
           node tools/make-page.mjs
           git diff --exit-code index.html
+      - name: SDK parity — the published SDK carries the gated kernel byte for byte
+        run: cmp kernel.mjs sdk/kernel.js || { echo "::error::sdk/kernel.js differs from kernel.mjs — run cp kernel.mjs sdk/kernel.js"; exit 1; }
   page:
     runs-on: ubuntu-latest
     steps:

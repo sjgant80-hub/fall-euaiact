@@ -1,4 +1,4 @@
-// ◊·κ=1 · fall-euaiact SDK · TypeScript types
+// fall-euaiact SDK · TypeScript types
 
 export type Tier = 'prohibited' | 'high' | 'limited' | 'minimal';
 
@@ -19,7 +19,7 @@ export interface ClassifyResult {
 export interface DeepClassifyOpts {
   provider: 'anthropic' | 'openai' | 'google';
   apiKey: string;
-  /** optional model override · defaults to claude-3-5-sonnet / gpt-4o-mini / gemini-1.5-flash */
+  /** optional model override · defaults to claude-opus-5-5 / gpt-4o-mini / gemini-1.5-flash (the OpenAI and Google defaults are older and may be retired: pass `model` for those) */
   model?: string;
 }
 
@@ -209,6 +209,32 @@ export declare const SDK_VERSION: string;
 export declare const SPEC_VERSION: string;
 
 export declare function classify(description: string): ClassifyResult;
+
+/** The gated kernel's own result: what the live page shows. */
+export interface KernelResult {
+  tier: Tier;
+  label: string;
+  triggers: { note: string; art: string }[];
+  articles: string[];
+  matched: number;
+  /** 0 with no trigger, otherwise 40 + 20 per trigger, capped at 95 */
+  confidencePct: number;
+}
+export interface Obligations { ok: boolean; why?: string; tier?: Tier; deadline?: string | null; articles?: string[]; action?: string; }
+/** Never throws: a non-string is classified as an empty description (minimal). */
+export declare function classifyText(text: unknown): KernelResult;
+export declare function obligationsFor(tier: string): Obligations;
+/** The date a tier's obligations apply from (Art 113 as amended by Regulation (EU) 2026/1744), or null for minimal. */
+export declare function deadlineFor(tier: string): string | null;
+export interface Assessment { v: 1; kind: 'euaiact-assessment'; tier: Tier; articles: string[]; matched: number; confidencePct: number; textHash: string; at: string | null; scope: string; hash: string; }
+/** Seal a verdict: tier, articles and the hash of the exact text, content-addressed (change either and the hash breaks). */
+export declare function assess(text: unknown, meta?: { at?: string }): Assessment;
+/** Re-derive the seal. valid is true only if nothing in the assessment was altered. */
+export declare function verifyAssessment(a: unknown): { ok: true; valid: boolean } | { ok: false; why: string };
+export declare const SAMPLES: readonly string[];
+export declare const RULES: ReadonlyArray<{ tier: Tier; label: string; triggers: ReadonlyArray<{ re: RegExp; art: string; note: string }> }>;
+export declare function sha256(text: string): { ok: boolean; hash?: string; why?: string };
+export declare function canon(v: unknown): string;
 export declare function deepClassify(description: string, opts: DeepClassifyOpts): Promise<DeepClassifyResult>;
 export declare function searchArticles(query: string): Article[];
 export declare function getArticle(id: string): Article | undefined;

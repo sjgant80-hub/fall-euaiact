@@ -1,4 +1,4 @@
-// ◊·κ=1 · fall-euaiact reference Cloudflare Worker · deploy this yourself if you want a hosted REST API
+// fall-euaiact reference Cloudflare Worker · deploy this yourself if you want a hosted REST API
 // Routes:
 //   POST /v1/classify       · body: { description }                       → ClassifyResult
 //   POST /v1/deep-classify  · body: { description, provider, apiKey }     → DeepClassifyResult (BYOK pass-through)
